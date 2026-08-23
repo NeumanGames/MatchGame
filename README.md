@@ -2,8 +2,8 @@
 
 A **free, browser-based memory card game** designed for preschoolers and early learners. Match pairs of cards to build memory skills while learning numbers, letters, colors, and shapes — all in a playful, screen-friendly format.
 
-🌐 **Live Game:** [schoolcommuter.neumangames.com](https://schoolcommuter.neumangames.com)
-📦 **Repository:** [github.com/NeumanGames/schoolcommuter](https://github.com/NeumanGames/schoolcommuter)
+🌐 **Live Game:** [memorymatch.neumangames.com](https://memorymatch.neumangames.com)
+📦 **Repository:** [github.com/NeumanGames/MatchGame](https://github.com/NeumanGames/MatchGame)
 
 -----
 
