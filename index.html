@@ -2,1158 +2,1238 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Memory Match! – NeumanGames™</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Light, Last Light — School Commute Planner</title>
+<meta name="description" content="See exactly how much daylight you'll have for school drop-off and pickup, and what safety gear to bring.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ─────────────────────────────────────────────── */
-:root {
-  --cream:  #FFF8ED;
-  --navy:   #1A2B4A;
-  --red:    #FF4757;
-  --orange: #FF7F50;
-  --yellow: #FFD93D;
-  --green:  #6BCB77;
-  --blue:   #4D96FF;
-  --purple: #C77DFF;
-  --pink:   #FF6EB4;
-  --teal:   #00D2C6;
-  --card-back: linear-gradient(135deg,#4D96FF 0%,#C77DFF 100%);
-  --card-radius: 14px;
-  --card-shadow: 0 4px 14px rgba(0,0,0,.18);
-  --font-display: 'Fredoka One', cursive;
-  --font-body: 'Nunito', sans-serif;
-}
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  :root{
+    --ink:#12172B;
+    --ink-soft:#232A45;
+    --paper:#F6F3EC;
+    --paper-soft:#FBF9F4;
+    --card:#FFFFFF;
+    --dawn:#F4A45B;
+    --dusk:#E1573F;
+    --sky:#4A90D9;
+    --twilight:#4B5A8F;
+    --hivis:#CFE645;
+    --hivis-ink:#3A4400;
+    --muted:#6B7280;
+    --line:rgba(18,23,43,0.12);
+    --danger:#E1573F;
+    --ok:#3E8E5A;
+    --radius:14px;
+    --font-display:'Fraunces', serif;
+    --font-body:'Inter', system-ui, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,32px);}
 
-/*
- * PAGE LAYOUT STRATEGY
- * ─────────────────────
- * body is a flex column that is AT LEAST the full viewport height.
- * #page-content is flex:1 — it stretches to fill whatever space the
- * footer doesn't use, keeping the footer snapped to the bottom when
- * content is short, and pushing it down naturally when content is tall.
- * The footer never overlaps content because it's in normal document flow.
- */
-html { height: 100%; }
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  background-color: var(--cream);
-  background-image:
-    radial-gradient(circle at 15% 20%,rgba(255,71,87,.12) 0 60px,transparent 60px),
-    radial-gradient(circle at 85% 15%,rgba(77,150,255,.12) 0 80px,transparent 80px),
-    radial-gradient(circle at 10% 80%,rgba(107,203,119,.12) 0 70px,transparent 70px),
-    radial-gradient(circle at 90% 85%,rgba(255,211,61,.18) 0 90px,transparent 90px);
-  font-family: var(--font-body);
-  color: var(--navy);
-  overflow-x: hidden;
-}
+  /* ---------- Hero ---------- */
+  .hero{
+    background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+    color:var(--paper-soft);
+    padding:clamp(28px,6vw,56px) 0 clamp(20px,4vw,32px);
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:0; height:6px;
+    background:linear-gradient(90deg, var(--ink) 0%, var(--twilight) 18%, var(--dawn) 30%, var(--sky) 45%, var(--sky) 55%, var(--dusk) 70%, var(--twilight) 82%, var(--ink) 100%);
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:12px;
+    color:var(--hivis);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(30px,5.4vw,52px);
+    line-height:1.04;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:italic;font-weight:500;color:var(--dawn);}
+  .hero p.sub{
+    max-width:56ch;
+    color:#C9CEE0;
+    font-size:clamp(15px,2vw,18px);
+    margin:0 0 22px;
+  }
 
-/* Wraps header + all screens; grows to push footer down */
-#page-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 10px 16px;
-  width: 100%;
-}
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:clamp(16px,3vw,26px);
+    margin-bottom:18px;
+    box-shadow:0 1px 2px rgba(18,23,43,0.04);
+  }
+  .panel h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:22px;
+    margin:0 0 4px;
+  }
+  .panel .panel-note{color:var(--muted);font-size:13.5px;margin:0 0 16px;}
+  section.content{padding-top:22px;}
 
-/* ── HEADER ──────────────────────────────────────────────── */
-header { text-align:center; margin-bottom:6px; width:100%; flex-shrink:0; }
-.logo {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem,5.5vw,3.2rem);
-  color: var(--navy);
-  text-shadow: 3px 4px 0 rgba(77,150,255,.35);
-  letter-spacing: 1px; line-height:1;
-}
-.logo span { color: var(--blue); }
-.subtitle {
-  font-size: clamp(.65rem,2vw,.85rem);
-  font-weight:700; color:#999; letter-spacing:2px;
-  text-transform:uppercase; margin-top:2px;
-}
+  .field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:6px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:12.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .field input, .field select{
+    font-family:var(--font-body);
+    font-size:15px;
+    padding:10px 11px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:var(--paper-soft);
+    color:var(--ink);
+    width:100%;
+  }
+  .field input:focus, .field select:focus, button:focus-visible{
+    outline:2px solid var(--sky); outline-offset:1px;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--ink);color:var(--paper-soft);
+    border:none;border-radius:9px;
+    padding:11px 18px;font-weight:600;font-size:14.5px;
+    cursor:pointer;transition:transform .12s ease, background .12s ease;
+  }
+  .btn:hover{background:var(--ink-soft);}
+  .btn:active{transform:scale(.98);}
+  .btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn.secondary:hover{background:var(--paper-soft);}
+  .btn.hivis{background:var(--hivis);color:var(--hivis-ink);}
+  .btn.hivis:hover{filter:brightness(0.96);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-sm{padding:8px 13px;font-size:13px;}
 
-/* ── SCREENS ─────────────────────────────────────────────── */
-.screen { width:100%; max-width:960px; }
-.screen.hidden { display:none !important; }
+  .toggle-pill{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;}
+  .toggle-pill button{
+    background:transparent;border:none;padding:8px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
+  }
+  .toggle-pill button.active{background:var(--ink);color:var(--paper-soft);}
 
-/* ── SETUP ───────────────────────────────────────────────── */
-#setup-screen {
-  display:flex; flex-direction:column; align-items:center; gap:20px; margin-top:8px;
-  padding-bottom: 8px;
-}
-.setup-section { width:100%; max-width:740px; }
-.setup-label {
-  font-family:var(--font-display); font-size:1.15rem; color:var(--navy);
-  margin-bottom:8px; display:flex; align-items:center; gap:8px;
-}
-.setup-label .badge {
-  background:var(--navy); color:#fff; font-family:var(--font-body);
-  font-size:.6rem; font-weight:800; letter-spacing:1px;
-  text-transform:uppercase; padding:2px 7px; border-radius:20px;
-}
-.pill-group { display:flex; flex-wrap:wrap; gap:8px; }
-.pill {
-  font-family:var(--font-display); font-size:.95rem; padding:9px 16px;
-  border-radius:50px; border:3px solid transparent; cursor:pointer;
-  transition:transform .15s,box-shadow .15s,background .15s;
-  background:#fff; color:var(--navy); box-shadow:0 3px 0 rgba(0,0,0,.12);
-  user-select:none; text-align:center; line-height:1.3;
-}
-.pill:hover  { transform:translateY(-2px); box-shadow:0 5px 0 rgba(0,0,0,.12); }
-.pill.selected { color:#fff; transform:translateY(-2px); box-shadow:0 5px 0 rgba(0,0,0,.2); }
+  .location-results{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+  .location-result{
+    text-align:left;background:var(--paper-soft);border:1px solid var(--line);border-radius:9px;
+    padding:10px 12px;cursor:pointer;font-size:14px;
+  }
+  .location-result:hover{border-color:var(--sky);}
+  .location-chip{
+    display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper-soft);
+    padding:8px 14px;border-radius:999px;font-size:13.5px;font-weight:600;margin-top:8px;
+  }
+  .location-chip button{background:none;border:none;color:var(--hivis);cursor:pointer;font-weight:700;font-size:14px;padding:0 0 0 4px;}
+  .status-msg{font-size:13.5px;color:var(--muted);margin-top:8px;}
+  .status-msg.err{color:var(--danger);}
 
-.pill[data-cat="numbers"].selected { background:var(--red);    box-shadow:0 5px 0 #b3001b; }
-.pill[data-cat="letters"].selected { background:var(--blue);   box-shadow:0 5px 0 #1a57c9; }
-.pill[data-cat="colors"].selected  { background:var(--orange); box-shadow:0 5px 0 #b84e00; }
-.pill[data-cat="shapes"].selected  { background:var(--purple); box-shadow:0 5px 0 #7a1fb0; }
+  /* ---------- Leg config cards ---------- */
+  .leg-card{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px;background:var(--paper-soft);}
+  .leg-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  .leg-title{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:600;font-size:19px;}
+  .leg-title .dot{width:10px;height:10px;border-radius:50%;}
+  .leg-title .dot.dropoff{background:var(--dawn);}
+  .leg-title .dot.pickup{background:var(--dusk);}
+  .switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .switch .slider{position:absolute;inset:0;background:var(--line);border-radius:999px;cursor:pointer;transition:.15s;}
+  .switch .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .switch input:checked + .slider{background:var(--ok);}
+  .switch input:checked + .slider::before{transform:translateX(18px);}
+  .leg-body{display:none;}
+  .leg-body.show{display:block;}
+  .mode-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+  .mode-btn{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:10px 4px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+    cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);
+  }
+  .mode-btn .ic{font-size:20px;}
+  .mode-btn.active{border-color:var(--ink);color:var(--ink);background:#fff;box-shadow:0 0 0 1px var(--ink) inset;}
+  .travel-readout{
+    font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-top:10px;
+    padding-top:10px;border-top:1px dashed var(--line);
+  }
+  .check-row{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;}
+  .check-row input{width:17px;height:17px;}
 
-.pill[data-lv="1"].selected { background:#6BCB77; box-shadow:0 5px 0 #3a8a44; }
-.pill[data-lv="2"].selected { background:#00D2C6; box-shadow:0 5px 0 #008a82; }
-.pill[data-lv="3"].selected { background:#4D96FF; box-shadow:0 5px 0 #1a57c9; }
-.pill[data-lv="4"].selected { background:#FF7F50; box-shadow:0 5px 0 #b84e00; }
-.pill[data-lv="5"].selected { background:#FF4757; box-shadow:0 5px 0 #b3001b; }
-.pill[data-lv="6"].selected { background:#7b2ff7; box-shadow:0 5px 0 #4a0099; }
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .tab-btn{
+    padding:10px 16px;border-radius:9px;border:1px solid var(--line);background:var(--card);
+    font-weight:600;font-size:14px;cursor:pointer;color:var(--muted);
+  }
+  .tab-btn.active{background:var(--ink);color:var(--paper-soft);border-color:var(--ink);}
 
-.pill[data-pl].selected  { background:var(--navy); box-shadow:0 5px 0 #000; }
+  /* ---------- Timeline (signature element) ---------- */
+  .timeline{position:relative;height:30px;border-radius:8px;overflow:visible;margin:14px 0 30px;}
+  .timeline .track{position:absolute;inset:0;border-radius:8px;}
+  .pin{
+    position:absolute;top:-6px;width:2px;height:42px;background:var(--ink);transform:translateX(-1px);
+    z-index:1;
+  }
+  .pin::before{
+    content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+    width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35);
+    z-index:2;
+  }
+  .pin.c-dark::before{background:var(--ink);}
+  .pin.c-twilight::before{background:var(--twilight);}
+  .pin.c-golden::before{background:var(--dawn);}
+  .pin.c-daylight::before{background:var(--sky);}
+  .pin .pin-label{
+    position:absolute;left:50%;transform:translateX(-50%);
+    font-size:10.5px;font-family:var(--font-mono);white-space:nowrap;color:var(--muted);
+    background:var(--card);padding:0 3px;border-radius:3px;
+  }
+  .pin .pin-time{
+    position:absolute;left:50%;transform:translateX(-50%);
+    font-size:10.5px;font-family:var(--font-mono);white-space:nowrap;font-weight:600;color:var(--ink);
+    background:var(--card);padding:0 3px;border-radius:3px;
+  }
 
-.pill[data-sz="S"].selected { background:#888;        box-shadow:0 5px 0 #555; }
-.pill[data-sz="M"].selected { background:var(--teal); box-shadow:0 5px 0 #008a82; }
-.pill[data-sz="L"].selected { background:var(--purple);box-shadow:0 5px 0 #7a1fb0; }
 
-.player-names { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-.player-name-input { display:flex; align-items:center; gap:8px; }
-.player-dot { width:16px; height:16px; border-radius:50%; flex-shrink:0; }
-.name-field {
-  font-family:var(--font-body); font-weight:800; font-size:.95rem;
-  padding:7px 12px; border:3px solid #ddd; border-radius:12px;
-  outline:none; width:120px; background:#fff; transition:border-color .2s;
-}
-.name-field:focus { border-color:var(--blue); }
+  /* ---------- Day cards ---------- */
+  .day-card{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);padding:18px 18px 8px;margin-bottom:16px;}
+  .day-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
+  .day-date{font-family:var(--font-display);font-weight:600;font-size:19px;}
+  .day-sun{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);}
+  .leg-result{border-top:1px solid var(--line);padding:14px 0;}
+  .leg-result-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;margin-bottom:8px;}
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
+    font-size:11.5px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;
+  }
+  .badge.dark{background:var(--ink);color:#fff;}
+  .badge.twilight{background:var(--twilight);color:#fff;}
+  .badge.golden{background:var(--dawn);color:#3A2200;}
+  .badge.daylight{background:#DCEBFA;color:#1D4E7E;}
+  .waypoint-line{font-size:13.5px;color:var(--ink-soft);margin:3px 0;}
+  .waypoint-line .t{font-family:var(--font-mono);font-weight:600;}
+  .weather-chip{
+    display:inline-flex;align-items:center;gap:6px;background:var(--paper-soft);border:1px solid var(--line);
+    border-radius:999px;padding:4px 11px;font-size:12.5px;margin:6px 6px 0 0;
+  }
+  .gear-list{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px;}
+  .gear-list li{font-size:13.5px;padding-left:20px;position:relative;color:var(--ink-soft);}
+  .gear-list li::before{content:'●';position:absolute;left:0;color:var(--hivis);font-size:10px;top:5px;}
 
-.start-btn {
-  font-family:var(--font-display); font-size:1.5rem;
-  padding:16px 52px; border-radius:60px; border:none; cursor:pointer;
-  background:var(--green); color:#fff; box-shadow:0 7px 0 #3a8a44;
-  transition:transform .12s,box-shadow .12s;
-}
-.start-btn:hover  { transform:translateY(-3px); box-shadow:0 10px 0 #3a8a44; }
-.start-btn:active { transform:translateY(4px);  box-shadow:0 3px 0 #3a8a44; }
+  /* ---------- Month trend ---------- */
+  .month-chart-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+  .month-chart-title{font-family:var(--font-display);font-weight:600;font-size:17px;margin:0 0 4px;}
+  .month-chart-sub{font-size:12.5px;color:var(--muted);margin:0 0 10px;}
+  .calendar-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px;}
+  .calendar-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .calendar-legend .sw{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .calendar-scroll{overflow-x:auto;}
+  #light-calendar{display:block;}
+  .transition-item{
+    display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;
+  }
+  .transition-item:first-child{border-top:none;}
 
-/* Subtle help link on setup screen */
-.setup-help-btn {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: .9rem;
-  color: #aaa;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 8px;
-  transition: color .15s, background .15s;
-  margin-top: -8px;
-}
-.setup-help-btn:hover { color: var(--blue); background: rgba(77,150,255,.08); }
+  .help-box{
+    background:var(--ink);color:#C9CEE0;border-radius:var(--radius);padding:18px 20px;font-size:13.5px;
+  }
+  .help-box summary{cursor:pointer;color:var(--paper-soft);font-weight:600;font-family:var(--font-display);font-size:16px;}
+  .help-box p{margin:10px 0 0;}
+  .help-box a{color:var(--hivis);}
 
-/* ── GAME SCREEN ──────────────────────────────────────────── */
-/*
- * Game screen is simply auto height — it shrink-wraps its content.
- * No min-height, no flex:1. The footer snaps up/down based on actual
- * content height through the body flex layout above.
- */
-#game-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  /* No min-height — let content dictate height */
-}
+  footer{padding:32px 0 60px;color:var(--muted);font-size:12.5px;text-align:center;}
 
-/* Toolbar */
-#game-toolbar {
-  display:flex; align-items:center; justify-content:space-between;
-  width:100%; max-width:960px; gap:8px; flex-shrink:0;
-}
-#scoreboard {
-  display:flex; flex-wrap:wrap; gap:8px; justify-content:center; flex:1; min-width:0;
-}
-.score-card {
-  background:#fff; border-radius:14px; padding:8px 14px;
-  box-shadow:0 3px 0 rgba(0,0,0,.1); display:flex; align-items:center; gap:8px;
-  transition:transform .2s,box-shadow .2s; border:3px solid transparent; flex-shrink:0;
-}
-.score-card.active { transform:translateY(-3px); box-shadow:0 6px 0 rgba(0,0,0,.15); }
-.score-avatar {
-  width:30px; height:30px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-size:.85rem; color:#fff; flex-shrink:0;
-}
-.score-name  { font-weight:800; font-size:.82rem; white-space:nowrap; }
-.score-pts   { font-family:var(--font-display); font-size:1.25rem; line-height:1; }
-.score-label { font-size:.55rem; font-weight:700; color:#aaa; text-transform:uppercase; }
-
-/* Icon buttons */
-.icon-btn-group { display:flex; gap:6px; flex-shrink:0; align-items:center; }
-.icon-btn {
-  width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-  font-size:1.2rem; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 0 rgba(0,0,0,.2);
-  transition:transform .12s,box-shadow .12s; user-select:none; flex-shrink:0;
-}
-.icon-btn:hover  { transform:translateY(-2px); box-shadow:0 6px 0 rgba(0,0,0,.22); }
-.icon-btn:active { transform:translateY(3px);  box-shadow:0 1px 0 rgba(0,0,0,.15); }
-.icon-btn.help { background:var(--yellow); color:var(--navy); box-shadow:0 4px 0 #c9a600; }
-.icon-btn.help:hover  { box-shadow:0 6px 0 #c9a600; }
-.icon-btn.help:active { box-shadow:0 1px 0 #c9a600; }
-.icon-btn.home { background:var(--red); color:#fff; box-shadow:0 4px 0 #b3001b; }
-.icon-btn.home:hover  { box-shadow:0 6px 0 #b3001b; }
-.icon-btn.home:active { box-shadow:0 1px 0 #b3001b; }
-
-/* Card size toggle */
-#size-toggle {
-  display:flex; background:#fff; border-radius:40px;
-  box-shadow:0 3px 0 rgba(0,0,0,.1); overflow:hidden; flex-shrink:0;
-}
-.sz-btn {
-  font-family:var(--font-display); font-size:.8rem;
-  padding:6px 10px; border:none; cursor:pointer; background:transparent;
-  color:#aaa; transition:background .15s,color .15s; white-space:nowrap; line-height:1;
-}
-.sz-btn.active { background:var(--navy); color:#fff; border-radius:40px; }
-
-/* Turn banner */
-#turn-banner {
-  font-family:var(--font-display); font-size:1.15rem; text-align:center;
-  padding:6px 20px; border-radius:40px; background:#fff;
-  box-shadow:0 3px 0 rgba(0,0,0,.1); width:100%; max-width:960px; flex-shrink:0;
-}
-
-/* Grid — natural size, no flex stretching */
-#card-grid { display:grid; }
-
-/* ── CARD ──────────────────────────────────────────────────── */
-.card-slot {
-  overflow:hidden;
-  transition: width .3s .5s ease, height .3s .5s ease, opacity .15s .5s ease;
-}
-.card-slot.collapsing {
-  width:0 !important; height:0 !important; opacity:0; pointer-events:none;
-}
-.card-wrap { perspective:700px; cursor:pointer; width:100%; height:100%; }
-.card-wrap.done { cursor:default; pointer-events:none; }
-.card-inner {
-  position:relative; width:100%; height:100%;
-  transform-style:preserve-3d;
-  transition:transform .4s cubic-bezier(.4,0,.2,1);
-  border-radius:var(--card-radius);
-}
-.card-wrap.flipped .card-inner { transform:rotateY(180deg); }
-
-@keyframes popMatch {
-  0%   { transform:rotateY(180deg) scale(1); }
-  35%  { transform:rotateY(180deg) scale(1.22); }
-  60%  { transform:rotateY(180deg) scale(.93); }
-  80%  { transform:rotateY(180deg) scale(1.07); }
-  100% { transform:rotateY(180deg) scale(1); }
-}
-.card-wrap.popping .card-inner { animation:popMatch .45s cubic-bezier(.36,.07,.19,.97) forwards; }
-
-.card-face {
-  position:absolute; inset:0; border-radius:var(--card-radius);
-  backface-visibility:hidden;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:2px; user-select:none; overflow:hidden;
-}
-.card-back { background:var(--card-back); box-shadow:var(--card-shadow); }
-.card-back::after { content:'⭐'; font-size:1.8em; filter:drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
-.card-front {
-  transform:rotateY(180deg); background:#fff;
-  box-shadow:var(--card-shadow); border:3px solid #eee; padding:4px;
-}
-.pip-grid {
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  gap:1px; width:100%; flex:1; padding:2px; overflow:hidden;
-}
-.card-word {
-  font-family:var(--font-body); font-weight:800; text-align:center;
-  line-height:1.1; color:var(--navy); letter-spacing:.3px;
-}
-@keyframes shake {
-  0%,100% { transform:rotateY(180deg) translateX(0); }
-  25%      { transform:rotateY(180deg) translateX(-5px); }
-  75%      { transform:rotateY(180deg) translateX(5px); }
-}
-.card-wrap.mismatch .card-inner { animation:shake .35s ease; }
-
-/* ── MODAL ────────────────────────────────────────────────── */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(20,30,50,.55);
-  backdrop-filter:blur(4px);
-  display:flex; align-items:center; justify-content:center;
-  z-index:500; padding:20px;
-  opacity:0; pointer-events:none; transition:opacity .2s;
-}
-.modal-overlay.open { opacity:1; pointer-events:all; }
-.modal-box {
-  background:#fff; border-radius:28px; padding:28px 24px;
-  max-width:480px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.25);
-  transform:scale(.92); transition:transform .2s;
-  display:flex; flex-direction:column; gap:16px;
-}
-.modal-overlay.open .modal-box { transform:scale(1); }
-.modal-title { font-family:var(--font-display); font-size:1.7rem; color:var(--navy); text-align:center; }
-.modal-body  { font-size:.95rem; line-height:1.6; color:#444; }
-.modal-body ul { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; }
-.modal-body li { display:flex; gap:10px; align-items:flex-start; }
-.modal-body li .mi { font-size:1.2rem; flex-shrink:0; }
-/* "View Full Instructions" link inside help modal */
-.modal-instructions-link {
-  align-self: center;
-  font-family: var(--font-display);
-  font-size: .95rem;
-  color: var(--blue);
-  text-decoration: none;
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 12px;
-  border-radius: 30px;
-  border: 2px solid rgba(77,150,255,.25);
-  transition: background .15s, border-color .15s, color .15s;
-}
-.modal-instructions-link:hover {
-  background: rgba(77,150,255,.08);
-  border-color: var(--blue);
-  color: #1a57c9;
-}
-
-.modal-close {
-  align-self:center; font-family:var(--font-display); font-size:1.15rem;
-  padding:11px 32px; border-radius:50px; border:none; cursor:pointer;
-  background:var(--green); color:#fff; box-shadow:0 5px 0 #3a8a44;
-  transition:transform .12s,box-shadow .12s;
-}
-.modal-close:hover  { transform:translateY(-2px); box-shadow:0 7px 0 #3a8a44; }
-.modal-close:active { transform:translateY(3px);  box-shadow:0 2px 0 #3a8a44; }
-.menu-actions { display:flex; flex-direction:column; gap:10px; }
-.menu-btn {
-  font-family:var(--font-display); font-size:1.15rem;
-  padding:13px 16px; border-radius:16px; border:none; cursor:pointer;
-  transition:transform .12s; text-align:left;
-  display:flex; align-items:center; gap:12px;
-}
-.menu-btn:hover  { transform:translateY(-2px); }
-.menu-btn:active { transform:translateY(2px); }
-.menu-btn.restart  { background:#FFF0F0; color:var(--red);    box-shadow:0 4px 0 #ffc5c5; }
-.menu-btn.newgame  { background:#F0F6FF; color:var(--blue);  box-shadow:0 4px 0 #b8d4ff; }
-.menu-btn.resume   { background:#F0FFF4; color:#2d8a45;      box-shadow:0 4px 0 #b2e8be; }
-.menu-btn.help-opt { background:#FFFBF0; color:#b07000;      box-shadow:0 4px 0 #ffe09a; }
-
-/* ── WIN SCREEN ───────────────────────────────────────────── */
-#win-screen {
-  display:flex; flex-direction:column; align-items:center;
-  gap:18px; text-align:center; padding-bottom:12px;
-}
-.win-trophy { font-size:4.5rem; animation:bounce 1s infinite alternate ease-in-out; }
-@keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-12px)} }
-.win-title {
-  font-family:var(--font-display); font-size:clamp(1.8rem,7vw,3.2rem);
-  color:var(--navy); text-shadow:3px 4px 0 rgba(255,211,61,.6);
-}
-.win-results { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
-.win-result-card {
-  background:#fff; border-radius:16px; padding:14px 20px;
-  box-shadow:0 5px 0 rgba(0,0,0,.1); min-width:110px;
-  display:flex; flex-direction:column; align-items:center; gap:4px;
-}
-.win-result-card.winner { box-shadow:0 5px 0 var(--yellow); border:3px solid var(--yellow); }
-.win-result-name  { font-weight:800; font-size:1rem; }
-.win-result-pts   { font-family:var(--font-display); font-size:2rem; }
-.win-result-label { font-size:.65rem; font-weight:700; color:#aaa; text-transform:uppercase; }
-.btn-group { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-.btn {
-  font-family:var(--font-display); font-size:1.2rem;
-  padding:13px 32px; border-radius:50px; border:none; cursor:pointer;
-  transition:transform .12s,box-shadow .12s;
-}
-.btn-green { background:var(--green); color:#fff; box-shadow:0 5px 0 #3a8a44; }
-.btn-blue  { background:var(--blue);  color:#fff; box-shadow:0 5px 0 #1a57c9; }
-.btn:hover  { transform:translateY(-3px); }
-.btn:active { transform:translateY(3px); box-shadow:none !important; }
-
-/* ── CONFETTI ─────────────────────────────────────────────── */
-#confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:999; width:100%; height:100%; }
-
-/* ── FOOTER ───────────────────────────────────────────────── */
-/*
- * Footer is the last child of body (a flex column).
- * It always sits immediately below the page content —
- * no gap when content is short, no overlap when content is tall.
- * margin-top:auto pushes it to the bottom when page-content is shorter
- * than the viewport.
- */
-footer {
-  margin-top: auto;   /* snaps up when content is short */
-  width: 100%;
-  background: linear-gradient(180deg,#1A2B4A 0%,#0d1b33 100%);
-  border-radius: 20px 20px 0 0;
-  padding: 20px 24px 26px;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
-  flex-shrink: 0;
-}
-.footer-brand-row { display:flex; flex-direction:column; align-items:center; gap:3px; }
-.footer-brand {
-  font-family:var(--font-display); color:#fff; font-size:1.2rem;
-  display:flex; align-items:center; gap:8px;
-}
-.footer-brand span { color:var(--yellow); }
-.footer-tagline { font-size:.75rem; color:rgba(255,255,255,.5); font-weight:700; }
-.footer-btns { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-.footer-btn {
-  font-family:var(--font-display); font-size:.95rem;
-  padding:11px 22px; border-radius:50px; border:none; cursor:pointer;
-  display:flex; align-items:center; gap:7px; text-decoration:none;
-  transition:transform .12s,box-shadow .12s; box-shadow:0 5px 0 rgba(0,0,0,.25);
-}
-.footer-btn:hover  { transform:translateY(-2px); box-shadow:0 7px 0 rgba(0,0,0,.3); }
-.footer-btn:active { transform:translateY(3px);  box-shadow:0 2px 0 rgba(0,0,0,.2); }
-.footer-btn.how-to  { background:#e8e8e8; color:var(--navy); box-shadow:0 5px 0 #aaa; }
-.footer-btn.how-to:hover  { box-shadow:0 7px 0 #aaa; }
-.footer-btn.kofi    { background:var(--orange); color:#fff; box-shadow:0 5px 0 #b84e00; }
-.footer-btn.kofi:hover    { box-shadow:0 7px 0 #b84e00; }
-.footer-btn.patreon { background:var(--yellow); color:var(--navy); box-shadow:0 5px 0 #c9a600; }
-.footer-btn.patreon:hover { box-shadow:0 7px 0 #c9a600; }
-.footer-copy {
-  font-size:.68rem; color:rgba(255,255,255,.35); text-align:center; line-height:1.6;
-}
-.footer-copy a { color:rgba(255,255,255,.5); text-decoration:none; }
-.footer-copy a:hover { color:#fff; }
-
-@media(max-width:480px) {
-  .start-btn  { font-size:1.3rem; padding:14px 36px; }
-  .footer-btn { font-size:.85rem; padding:10px 16px; }
-  .score-name { display:none; }
-}
+  @media (max-width:560px){
+    .mode-grid{grid-template-columns:repeat(2,1fr);}
+    .field-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
 </style>
 </head>
 <body>
 
-<canvas id="confetti-canvas"></canvas>
-
-<!-- Setup Help modal — game options summary -->
-<div class="modal-overlay" id="setup-help-modal">
-  <div class="modal-box">
-    <div class="modal-title">❓ Game Options</div>
-    <div class="modal-body">
-      <ul>
-        <li><span class="mi">🔢</span><span><strong>Numbers</strong> — count emoji icons to find matching pairs (e.g. five 🌈 = five 🌈).</span></li>
-        <li><span class="mi">🔤</span><span><strong>Letters</strong> — match capital letters with their animal or object (e.g. H · 🐴 · Horse).</span></li>
-        <li><span class="mi">🎨</span><span><strong>Colors</strong> — match color-coded cards by name and emoji.</span></li>
-        <li><span class="mi">⭐</span><span><strong>Shapes</strong> — match shape emoji cards by name.</span></li>
-        <li><span class="mi">🌟</span><span><strong>Levels</strong> — start with 🌱 Seedling (6 cards) and work up to 💥 EXTREME! (48 cards).</span></li>
-        <li><span class="mi">📐</span><span><strong>Card size</strong> — choose Small, Medium, or Large before starting. Change anytime with S · M · L in the toolbar.</span></li>
-        <li><span class="mi">👥</span><span><strong>Players</strong> — 1 to 4 players take turns. Match a pair to keep your turn and earn a point!</span></li>
-      </ul>
-    </div>
-    <a class="modal-instructions-link" href="https://github.com/NeumanGames/MatchGame#readme" target="_blank" rel="noopener noreferrer">
-      📖 Full Instructions on GitHub
-    </a>
-    <button class="modal-close" id="setup-help-close">Got it!</button>
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">School commute · daylight &amp; safety</p>
+    <h1>First Light, <em>Last Light.</em></h1>
+    <p class="sub">See exactly how much daylight your family will have for drop-off and pickup — by walking, biking, bus, or car — and what safety gear to bring when the sun's not cooperating.</p>
   </div>
 </div>
 
-<!-- Gameplay Help modal — how to play summary -->
-<div class="modal-overlay" id="gameplay-help-modal">
-  <div class="modal-box">
-    <div class="modal-title">❓ How to Play</div>
-    <div class="modal-body">
-      <ul>
-        <li><span class="mi">🃏</span><span><strong>Flip two cards</strong> — tap any card to reveal what's hiding!</span></li>
-        <li><span class="mi">👀</span><span><strong>Find the match</strong> — if both cards show the same thing, it's a pair!</span></li>
-        <li><span class="mi">🎉</span><span><strong>Score a point</strong> — matched pairs pop off the board and you keep your turn.</span></li>
-        <li><span class="mi">🔄</span><span><strong>Miss?</strong> — cards flip back and the next player takes a turn.</span></li>
-        <li><span class="mi">🏆</span><span><strong>Most matches wins</strong> — keep going until all cards are gone!</span></li>
-        <li><span class="mi">📐</span><span><strong>Resize cards</strong> — tap <strong>S · M · L</strong> in the toolbar anytime.</span></li>
-        <li><span class="mi">🏠</span><span><strong>Home button</strong> — pause and return to the menu or start a new game.</span></li>
-      </ul>
+<div class="wrap content">
+
+  <!-- LOCATION -->
+  <div class="panel" id="panel-location">
+    <h2>Where's your school run?</h2>
+    <p class="panel-note">City &amp; state, or ZIP code. This sets your sunrise, sunset, and twilight times.</p>
+    <div class="row">
+      <div class="field" style="flex:1;min-width:200px;">
+        <label for="loc-input">Location</label>
+        <input id="loc-input" type="text" placeholder="e.g. Marietta, GA or 30060" autocomplete="off">
+      </div>
+      <button class="btn" id="loc-search-btn">Find it</button>
     </div>
-    <a class="modal-instructions-link" href="https://github.com/NeumanGames/MatchGame#readme" target="_blank" rel="noopener noreferrer">
-      📖 Full Instructions on GitHub
-    </a>
-    <button class="modal-close" id="gameplay-help-close">Got it! Let's Play 🎮</button>
+    <div id="loc-status" class="status-msg"></div>
+    <div id="loc-results" class="location-results"></div>
+    <div id="loc-chosen"></div>
   </div>
-</div>
 
-<!-- Menu modal -->
-<div class="modal-overlay" id="menu-modal">
-  <div class="modal-box">
-    <div class="modal-title">🏠 Game Menu</div>
-    <div class="menu-actions">
-      <button class="menu-btn resume"  id="menu-resume" >▶ &nbsp;Resume Game</button>
-      <button class="menu-btn restart" id="menu-restart">🔄 &nbsp;Restart This Game</button>
-      <button class="menu-btn newgame" id="menu-newgame">🏠 &nbsp;New Game Setup</button>
-      <button class="menu-btn help-opt" id="menu-help"  >❓ &nbsp;How to Play</button>
-    </div>
-  </div>
-</div>
+  <!-- SETUP (hidden until location chosen) -->
+  <div id="setup-section" style="display:none;">
 
-<!-- All visible page content lives here so footer can use margin-top:auto -->
-<div id="page-content">
-
-  <header>
-    <div class="logo">Memory <span>Match!</span></div>
-    <div class="subtitle">NeumanGames™ · For Little Learners</div>
-  </header>
-
-  <!-- ══ SETUP SCREEN ══════════════════════════════════════════ -->
-  <section id="setup-screen" class="screen">
-
-    <div class="setup-section">
-      <div class="setup-label">🧠 What will we match? <span class="badge">Pick One</span></div>
-      <div class="pill-group" id="cat-pills">
-        <button class="pill selected" data-cat="numbers">🔢 Numbers</button>
-        <button class="pill" data-cat="letters">🔤 Letters</button>
-        <button class="pill" data-cat="colors">🎨 Colors</button>
-        <button class="pill" data-cat="shapes">⭐ Shapes</button>
-      </div>
-    </div>
-
-    <div class="setup-section">
-      <div class="setup-label">🌟 Choose Your Level <span class="badge">Pick One</span></div>
-      <div class="pill-group" id="lv-pills">
-        <button class="pill selected" data-lv="1">🌱 Seedling<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">6 cards</small></button>
-        <button class="pill" data-lv="2">🐣 Hatchling<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">12 cards</small></button>
-        <button class="pill" data-lv="3">🦊 Explorer<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">16 cards</small></button>
-        <button class="pill" data-lv="4">🚀 Adventurer<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">20 cards</small></button>
-        <button class="pill" data-lv="5">🏆 Champion<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">24 cards</small></button>
-        <button class="pill" data-lv="6">💥 EXTREME!<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">48 cards</small></button>
-      </div>
-    </div>
-
-    <div class="setup-section">
-      <div class="setup-label">📐 Card Size <span class="badge">Pick One</span></div>
-      <div class="pill-group" id="sz-pills">
-        <button class="pill" data-sz="S">🔹 Small<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">More cards visible</small></button>
-        <button class="pill selected" data-sz="M">🔶 Medium<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">Balanced</small></button>
-        <button class="pill" data-sz="L">🔷 Large<br><small style="font-family:var(--font-body);font-size:.65rem;font-weight:700">Easier to tap</small></button>
-      </div>
-    </div>
-
-    <div class="setup-section">
-      <div class="setup-label">👥 How many players? <span class="badge">Pick One</span></div>
-      <div class="pill-group" id="pl-pills">
-        <button class="pill selected" data-pl="1">1 Player</button>
-        <button class="pill" data-pl="2">2 Players</button>
-        <button class="pill" data-pl="3">3 Players</button>
-        <button class="pill" data-pl="4">4 Players</button>
-      </div>
-      <div class="player-names" id="player-names"></div>
-    </div>
-
-    <button class="start-btn" id="start-btn">▶ Let's Play!</button>
-    <button class="setup-help-btn" id="setup-help-btn">❓ How do the options work?</button>
-  </section>
-
-  <!-- ══ GAME SCREEN ════════════════════════════════════════════ -->
-  <section id="game-screen" class="screen hidden">
-    <div id="game-toolbar">
-      <div id="scoreboard"></div>
-      <div class="icon-btn-group">
-        <div id="size-toggle">
-          <button class="sz-btn" data-sz="S">S</button>
-          <button class="sz-btn active" data-sz="M">M</button>
-          <button class="sz-btn" data-sz="L">L</button>
+    <div class="panel">
+      <h2>School bell times</h2>
+      <p class="panel-note">We work backward and forward from these to figure out when your family is actually outside.</p>
+      <div class="field-grid">
+        <div class="field">
+          <label for="school-start">School starts</label>
+          <input id="school-start" type="time" value="08:00">
         </div>
-        <button class="icon-btn help" id="help-btn" title="How to play">❓</button>
-        <button class="icon-btn home" id="menu-btn" title="Home / Menu">🏠</button>
+        <div class="field">
+          <label for="arrive-early">Arrive (min early)</label>
+          <input id="arrive-early" type="number" min="0" max="60" value="10">
+        </div>
+        <div class="field">
+          <label for="school-end">School ends</label>
+          <input id="school-end" type="time" value="15:00">
+        </div>
+        <div class="field">
+          <label for="dismiss-delay">Dismissal delay (min)</label>
+          <input id="dismiss-delay" type="number" min="0" max="60" value="5">
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <div class="toggle-pill" id="units-toggle">
+          <button data-units="imperial" class="active">°F / mi / mph</button>
+          <button data-units="metric">°C / km / km-h</button>
+        </div>
       </div>
     </div>
-    <div id="turn-banner">⏳ Getting ready…</div>
-    <div id="card-grid"></div>
-  </section>
 
-  <!-- ══ WIN SCREEN ════════════════════════════════════════════ -->
-  <section id="win-screen" class="screen hidden">
-    <div class="win-trophy">🏆</div>
-    <div class="win-title">Amazing Job!</div>
-    <div id="win-results" class="win-results"></div>
-    <div class="btn-group">
-      <button class="btn btn-green" id="play-again-btn">🔄 Play Again</button>
-      <button class="btn btn-blue"  id="new-game-btn">🏠 New Game</button>
+    <div class="panel">
+      <h2>Your trips</h2>
+      <p class="panel-note">Turn on drop-off and/or pickup, then set the mode, distance, and speed for each.</p>
+
+      <div class="leg-card" id="leg-dropoff">
+        <div class="leg-head">
+          <div class="leg-title"><span class="dot dropoff"></span> Drop-off</div>
+          <label class="switch"><input type="checkbox" id="dropoff-enabled" checked><span class="slider"></span></label>
+        </div>
+        <div class="leg-body show" id="dropoff-body"></div>
+      </div>
+
+      <div class="leg-card" id="leg-pickup">
+        <div class="leg-head">
+          <div class="leg-title"><span class="dot pickup"></span> Pickup</div>
+          <label class="switch"><input type="checkbox" id="pickup-enabled" checked><span class="slider"></span></label>
+        </div>
+        <div class="leg-body show" id="pickup-body"></div>
+      </div>
     </div>
-  </section>
 
-</div><!-- /#page-content -->
+    <!-- VIEW TABS -->
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-view="week">7-Day Outlook</button>
+      <button class="tab-btn" data-view="date">Pick a Date</button>
+      <button class="tab-btn" data-view="month">Month Trend</button>
+    </div>
 
-<!-- Footer is a direct child of body — margin-top:auto snaps it to content bottom -->
-<footer>
-  <div class="footer-brand-row">
-    <div class="footer-brand">⭐ <span>NeumanGames™</span></div>
-    <div class="footer-tagline">A free preschool learning game by NeumanGames™</div>
+    <div id="view-week" class="view-panel"></div>
+    <div id="view-date" class="view-panel" style="display:none;"></div>
+    <div id="view-month" class="view-panel" style="display:none;"></div>
+
+    <details class="help-box">
+      <summary>How this works &amp; where the data comes from</summary>
+      <p>Sunrise, sunset, and civil twilight are calculated for your exact coordinates and date using standard solar-position equations (the same approach used by NOAA's solar calculator) — accurate to about a minute anywhere in the world.</p>
+      <p>Weather forecasts come from Open-Meteo and are only available roughly 16 days out. Beyond that, the Month Trend view shows daylight patterns only — weather that far ahead can't be reliably predicted.</p>
+      <p><strong>Civil twilight</strong> is the window right before sunrise / after sunset when there's still usable light but the sun is below the horizon — this is when reflective gear matters most, since drivers' eyes are adjusting.</p>
+      <p>This planner doesn't store your location or trip details anywhere — everything runs in your browser and resets on reload.</p>
+      <p><strong>Note:</strong> location and weather lookups need a live internet connection to reach outside map/weather services. They won't work if this file is opened directly from disk in some browsers, or inside a network-restricted preview — host it on a real web address (GitHub Pages works well) for full functionality.</p>
+    </details>
+
   </div>
-  <div class="footer-btns">
-    <button class="footer-btn how-to" id="footer-help-btn">❓ How to Play</button>
-    <a class="footer-btn kofi"    href="https://ko-fi.com/neumangames"   target="_blank">☕ Donate</a>
-    <a class="footer-btn patreon" href="https://patreon.com/NeumanGames" target="_blank">⭐ Join Patreon</a>
-  </div>
-  <div class="footer-copy">
-    © 2024–2025 NeumanGames™ &nbsp;·&nbsp; Free to play, always.<br>
-    Made with ❤️ by Tom &amp; Shia Neuman &nbsp;·&nbsp;
-    <a href="https://ko-fi.com/neumangames" target="_blank">Support us</a>
-  </div>
-</footer>
+</div>
+
+<footer>Built to help families choose the safer route home. No ads, no tracking, no accounts.</footer>
 
 <script>
-// ══════════════════════════════════════════════════════════════
-//  DATA
-// ══════════════════════════════════════════════════════════════
-const NUMBERS = [
-  { id:'n1',  label:'1',  pipEmoji:'🍎' }, { id:'n2',  label:'2',  pipEmoji:'🐝' },
-  { id:'n3',  label:'3',  pipEmoji:'🌟' }, { id:'n4',  label:'4',  pipEmoji:'🦋' },
-  { id:'n5',  label:'5',  pipEmoji:'🌈' }, { id:'n6',  label:'6',  pipEmoji:'🐞' },
-  { id:'n7',  label:'7',  pipEmoji:'🦄' }, { id:'n8',  label:'8',  pipEmoji:'🐙' },
-  { id:'n9',  label:'9',  pipEmoji:'🍭' }, { id:'n10', label:'10', pipEmoji:'🎈' },
-  { id:'n11', label:'11', pipEmoji:'🌺' }, { id:'n12', label:'12', pipEmoji:'🦊' },
-  { id:'n13', label:'13', pipEmoji:'🍄' }, { id:'n14', label:'14', pipEmoji:'🐠' },
-  { id:'n15', label:'15', pipEmoji:'🌼' }, { id:'n16', label:'16', pipEmoji:'🦜' },
-  { id:'n17', label:'17', pipEmoji:'🍓' }, { id:'n18', label:'18', pipEmoji:'🐸' },
-  { id:'n19', label:'19', pipEmoji:'🎀' }, { id:'n20', label:'20', pipEmoji:'🌙' },
-  { id:'n21', label:'21', pipEmoji:'🐬' }, { id:'n22', label:'22', pipEmoji:'🍕' },
-  { id:'n23', label:'23', pipEmoji:'🦁' }, { id:'n24', label:'24', pipEmoji:'🌵' },
-];
-const LETTERS = [
-  { id:'lA', label:'A', emoji:'🐊', word:'Alligator' }, { id:'lB', label:'B', emoji:'🐻', word:'Bear'      },
-  { id:'lC', label:'C', emoji:'🐱', word:'Cat'       }, { id:'lD', label:'D', emoji:'🦆', word:'Duck'      },
-  { id:'lE', label:'E', emoji:'🐘', word:'Elephant'  }, { id:'lF', label:'F', emoji:'🦊', word:'Fox'       },
-  { id:'lG', label:'G', emoji:'🦒', word:'Giraffe'   }, { id:'lH', label:'H', emoji:'🐴', word:'Horse'     },
-  { id:'lI', label:'I', emoji:'🍦', word:'Ice Cream' }, { id:'lJ', label:'J', emoji:'🎃', word:'Jack-O-Lantern'},
-  { id:'lK', label:'K', emoji:'🦘', word:'Kangaroo'  }, { id:'lL', label:'L', emoji:'🦁', word:'Lion'      },
-  { id:'lM', label:'M', emoji:'🐒', word:'Monkey'    }, { id:'lN', label:'N', emoji:'🦏', word:'Rhino'     },
-  { id:'lO', label:'O', emoji:'🐙', word:'Octopus'   }, { id:'lP', label:'P', emoji:'🐧', word:'Penguin'   },
-  { id:'lQ', label:'Q', emoji:'👸', word:'Queen'     }, { id:'lR', label:'R', emoji:'🐇', word:'Rabbit'    },
-  { id:'lS', label:'S', emoji:'🐍', word:'Snake'     }, { id:'lT', label:'T', emoji:'🐢', word:'Turtle'    },
-  { id:'lU', label:'U', emoji:'☂️',  word:'Umbrella'  }, { id:'lV', label:'V', emoji:'🎻', word:'Violin'    },
-  { id:'lW', label:'W', emoji:'🐺', word:'Wolf'      }, { id:'lX', label:'X', emoji:'🎸', word:'Xylophone' },
-];
-const COLORS = [
-  { id:'cR',  label:'Red',     emoji:'🍎', bg:'#FF4757' }, { id:'cO',  label:'Orange',  emoji:'🍊', bg:'#FF7F50' },
-  { id:'cY',  label:'Yellow',  emoji:'🌻', bg:'#FFD93D' }, { id:'cG',  label:'Green',   emoji:'🥦', bg:'#6BCB77' },
-  { id:'cB',  label:'Blue',    emoji:'🫐', bg:'#4D96FF' }, { id:'cP',  label:'Purple',  emoji:'🍇', bg:'#C77DFF' },
-  { id:'cPk', label:'Pink',    emoji:'🌸', bg:'#FF6EB4' }, { id:'cBr', label:'Brown',   emoji:'🍫', bg:'#a0522d' },
-  { id:'cW',  label:'White',   emoji:'☁️',  bg:'#aaaaaa' }, { id:'cBl', label:'Black',   emoji:'🎱', bg:'#222222' },
-  { id:'cT',  label:'Teal',    emoji:'🐢', bg:'#00a896' }, { id:'cM',  label:'Maroon',  emoji:'🍷', bg:'#800000' },
-  { id:'cLm', label:'Lime',    emoji:'🥝', bg:'#90c240' }, { id:'cLv', label:'Lavender',emoji:'💜', bg:'#9b7ed9' },
-  { id:'cGd', label:'Gold',    emoji:'⭐', bg:'#d4a017' }, { id:'cSk', label:'Sky',      emoji:'🌤️', bg:'#6db4e8' },
-  { id:'cCr', label:'Coral',   emoji:'🌺', bg:'#FF6B6B' }, { id:'cMn', label:'Mint',     emoji:'🌿', bg:'#3eb489' },
-  { id:'cIn', label:'Indigo',  emoji:'🔮', bg:'#4b0082' }, { id:'cTn', label:'Tan',      emoji:'🥜', bg:'#c8a96e' },
-  { id:'cRs', label:'Rose',    emoji:'🌹', bg:'#c0405a' }, { id:'cAq', label:'Aqua',     emoji:'💧', bg:'#00bfbf' },
-  { id:'cSl', label:'Silver',  emoji:'🥈', bg:'#999999' }, { id:'cNv', label:'Navy',     emoji:'🌊', bg:'#003580' },
-];
-const SHAPES = [
-  { id:'sC',  label:'Circle',    emoji:'🔵' }, { id:'sS',  label:'Square',    emoji:'🟥' },
-  { id:'sT',  label:'Triangle',  emoji:'🔺' }, { id:'sSt', label:'Star',      emoji:'⭐' },
-  { id:'sH',  label:'Heart',     emoji:'❤️' }, { id:'sDi', label:'Diamond',   emoji:'💎' },
-  { id:'sO',  label:'Oval',      emoji:'🥚' }, { id:'sR',  label:'Rectangle', emoji:'🟫' },
-  { id:'sPe', label:'Pentagon',  emoji:'⬠' }, { id:'sHx', label:'Hexagon',   emoji:'🔶' },
-  { id:'sCr', label:'Crescent',  emoji:'🌙' }, { id:'sAr', label:'Arrow',     emoji:'➡️' },
-  { id:'sCl', label:'Cloud',     emoji:'☁️' }, { id:'sBl', label:'Bell',      emoji:'🔔' },
-  { id:'sLt', label:'Lightning', emoji:'⚡' }, { id:'sFl', label:'Flower',    emoji:'🌸' },
-  { id:'sLf', label:'Leaf',      emoji:'🍃' }, { id:'sDm', label:'Drum',      emoji:'🥁' },
-  { id:'sKt', label:'Kite',      emoji:'🪁' }, { id:'sSn', label:'Sun',       emoji:'☀️' },
-  { id:'sMn', label:'Moon',      emoji:'🌕' }, { id:'sBt', label:'Butterfly', emoji:'🦋' },
-  { id:'sFt', label:'Footprint', emoji:'👣' }, { id:'sRb', label:'Rainbow',   emoji:'🌈' },
-];
-const CATEGORIES  = { numbers:NUMBERS, letters:LETTERS, colors:COLORS, shapes:SHAPES };
-const LEVEL_PAIRS = { 1:3, 2:6, 3:8, 4:10, 5:12, 6:24 };
-const PLAYER_COLOR_HEX = ['#FF4757','#4D96FF','#6BCB77','#FFD93D'];
-const DEFAULT_NAMES    = ['Player 1','Player 2','Player 3','Player 4'];
+(function(){
+  "use strict";
 
-// Size scale multipliers applied on top of the auto-fit base size
-const SIZE_SCALE = { S: 0.68, M: 1.0, L: 1.38 };
+  /* ============================================================
+     STATE
+  ============================================================ */
+  const state = {
+    location: null, // {name, lat, lon, timezone}
+    units: 'imperial',
+    school: { start: '08:00', end: '15:00', arriveEarly: 10, dismissDelay: 5 },
+    legs: {
+      dropoff: { enabled: true, mode: 'walk', distance: 0.5, speed: 2.8, roundTrip: false, waitTime: 5 },
+      pickup:  { enabled: true, mode: 'walk', distance: 0.5, speed: 2.8, roundTrip: false, waitTime: 5 }
+    },
+    view: 'week',
+    monthSpan: 3,
+    pickedDate: null,
+    weatherHourly: null,
+    weatherFetchedFor: null
+  };
 
-// ══════════════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════════════
-let state = {
-  category:'numbers', level:1, cardSize:'M', playerCount:1,
-  playerNames:[...DEFAULT_NAMES],
-  scores:[], currentPlayer:0,
-  flipped:[], matched:[], cards:[], locked:false,
-};
+  const MODE_META = {
+    walk: { label:'Walking', icon:'🚶', speedImp:2.8, speedMet:4.5, selfPowered:true },
+    bike: { label:'Cycling', icon:'🚲', speedImp:9,   speedMet:14.5, selfPowered:true },
+    bus:  { label:'Bus',     icon:'🚌', speedImp:18,  speedMet:29,  selfPowered:false },
+    car:  { label:'Car',     icon:'🚗', speedImp:25,  speedMet:40,  selfPowered:false }
+  };
 
-// ══════════════════════════════════════════════════════════════
-//  SETUP PILLS
-// ══════════════════════════════════════════════════════════════
-function setupPillGroup(groupId, key) {
-  document.getElementById(groupId).addEventListener('click', e => {
-    const btn = e.target.closest('.pill'); if (!btn) return;
-    document.querySelectorAll(`#${groupId} .pill`).forEach(p => p.classList.remove('selected'));
-    btn.classList.add('selected');
-    if      (key === 'playerCount') { state.playerCount = parseInt(btn.dataset.pl); renderNameFields(); }
-    else if (key === 'level')       { state.level    = parseInt(btn.dataset.lv); }
-    else if (key === 'cardSize')    { state.cardSize = btn.dataset.sz; syncSizeToggle(); }
-    else                            { state.category = btn.dataset.cat; }
-  });
-}
+  const WEATHER_CODES = {
+    0:['Clear sky','☀️'],1:['Mainly clear','🌤️'],2:['Partly cloudy','⛅'],3:['Overcast','☁️'],
+    45:['Fog','🌫️'],48:['Icy fog','🌫️'],
+    51:['Light drizzle','🌦️'],53:['Drizzle','🌦️'],55:['Heavy drizzle','🌧️'],
+    56:['Freezing drizzle','🌧️'],57:['Freezing drizzle','🌧️'],
+    61:['Light rain','🌧️'],63:['Rain','🌧️'],65:['Heavy rain','🌧️'],
+    66:['Freezing rain','🌧️'],67:['Freezing rain','🌧️'],
+    71:['Light snow','🌨️'],73:['Snow','🌨️'],75:['Heavy snow','❄️'],77:['Snow grains','🌨️'],
+    80:['Rain showers','🌦️'],81:['Rain showers','🌦️'],82:['Violent showers','⛈️'],
+    85:['Snow showers','🌨️'],86:['Snow showers','🌨️'],
+    95:['Thunderstorm','⛈️'],96:['Thunderstorm w/ hail','⛈️'],99:['Thunderstorm w/ hail','⛈️']
+  };
 
-function renderNameFields() {
-  const wrap = document.getElementById('player-names');
-  wrap.innerHTML = '';
-  for (let i=0; i<state.playerCount; i++) {
-    const div = document.createElement('div');
-    div.className = 'player-name-input';
-    div.innerHTML = `
-      <div class="player-dot" style="background:${PLAYER_COLOR_HEX[i]}"></div>
-      <input class="name-field" type="text" maxlength="12"
-             placeholder="${DEFAULT_NAMES[i]}"
-             value="${state.playerNames[i]}" data-pi="${i}">`;
-    wrap.appendChild(div);
-  }
-  wrap.querySelectorAll('.name-field').forEach(inp => {
-    inp.addEventListener('input', e => {
-      state.playerNames[+e.target.dataset.pi] = e.target.value || DEFAULT_NAMES[+e.target.dataset.pi];
-    });
-  });
-}
-
-setupPillGroup('cat-pills', 'category');
-setupPillGroup('lv-pills',  'level');
-setupPillGroup('sz-pills',  'cardSize');
-setupPillGroup('pl-pills',  'playerCount');
-renderNameFields();
-
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('play-again-btn').addEventListener('click', startGame);
-document.getElementById('new-game-btn').addEventListener('click', () => showScreen('setup-screen'));
-
-// ── In-game S·M·L size toggle ─────────────────────────────
-document.getElementById('size-toggle').addEventListener('click', e => {
-  const btn = e.target.closest('.sz-btn'); if (!btn) return;
-  state.cardSize = btn.dataset.sz;
-  syncSizeToggle();
-  document.querySelectorAll('#sz-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.sz === state.cardSize);
-  });
-  renderGrid();
-});
-
-function syncSizeToggle() {
-  document.querySelectorAll('#size-toggle .sz-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.sz === state.cardSize);
-  });
-}
-
-// ══════════════════════════════════════════════════════════════
-//  MODALS
-// ══════════════════════════════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// Setup help — game options
-document.getElementById('setup-help-btn').addEventListener('click',   () => openModal('setup-help-modal'));
-document.getElementById('setup-help-close').addEventListener('click', () => closeModal('setup-help-modal'));
-document.getElementById('setup-help-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('setup-help-modal'); });
-
-// Gameplay help — how to play
-document.getElementById('help-btn').addEventListener('click',            () => openModal('gameplay-help-modal'));
-document.getElementById('gameplay-help-close').addEventListener('click', () => closeModal('gameplay-help-modal'));
-document.getElementById('gameplay-help-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal('gameplay-help-modal'); });
-
-// Footer help — context-sensitive: options summary on setup/win, gameplay summary in-game
-document.getElementById('footer-help-btn').addEventListener('click', () => {
-  const inGame = !document.getElementById('game-screen').classList.contains('hidden');
-  openModal(inGame ? 'gameplay-help-modal' : 'setup-help-modal');
-});
-
-// Menu modal
-document.getElementById('menu-btn').addEventListener('click',    () => openModal('menu-modal'));
-document.getElementById('menu-modal').addEventListener('click',  e => { if(e.target===e.currentTarget) closeModal('menu-modal'); });
-document.getElementById('menu-resume').addEventListener('click', () => closeModal('menu-modal'));
-document.getElementById('menu-restart').addEventListener('click',() => { closeModal('menu-modal'); startGame(); });
-document.getElementById('menu-newgame').addEventListener('click',() => { closeModal('menu-modal'); showScreen('setup-screen'); });
-document.getElementById('menu-help').addEventListener('click',   () => { closeModal('menu-modal'); openModal('gameplay-help-modal'); });
-
-// ══════════════════════════════════════════════════════════════
-//  GAME START
-// ══════════════════════════════════════════════════════════════
-function startGame() {
-  const pairs = LEVEL_PAIRS[state.level];
-  const pool  = [...CATEGORIES[state.category]].slice(0, pairs);
-  const deck  = shuffle([...pool, ...pool].map((c,i) => ({...c, uid:`${c.id}_${i}`})));
-
-  state.cards         = deck;
-  state.scores        = Array(state.playerCount).fill(0);
-  state.currentPlayer = 0;
-  state.flipped       = [];
-  state.matched       = [];
-  state.locked        = false;
-
-  showScreen('game-screen');
-  syncSizeToggle();
-  renderScoreboard();
-  renderGrid();
-  updateTurnBanner();
-}
-
-// ══════════════════════════════════════════════════════════════
-//  SCOREBOARD
-// ══════════════════════════════════════════════════════════════
-function renderScoreboard() {
-  const sb = document.getElementById('scoreboard');
-  sb.innerHTML = '';
-  for (let i=0; i<state.playerCount; i++) {
-    const el = document.createElement('div');
-    el.className = 'score-card' + (i===state.currentPlayer ? ' active' : '');
-    el.id = `sc-${i}`;
-    el.style.borderColor = i===state.currentPlayer ? PLAYER_COLOR_HEX[i] : 'transparent';
-    const name = state.playerNames[i] || DEFAULT_NAMES[i];
-    el.innerHTML = `
-      <div class="score-avatar" style="background:${PLAYER_COLOR_HEX[i]}">${name.charAt(0).toUpperCase()}</div>
-      <div>
-        <div class="score-name">${name}</div>
-        <div class="score-label">Matches</div>
-      </div>
-      <div class="score-pts" id="pts-${i}">${state.scores[i]}</div>`;
-    sb.appendChild(el);
-  }
-}
-
-function updateScoreboard() {
-  for (let i=0; i<state.playerCount; i++) {
-    const el = document.getElementById(`sc-${i}`); if (!el) continue;
-    el.classList.toggle('active', i===state.currentPlayer);
-    el.style.borderColor = i===state.currentPlayer ? PLAYER_COLOR_HEX[i] : 'transparent';
-    document.getElementById(`pts-${i}`).textContent = state.scores[i];
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  CARD SIZING
-//  Cards are sized to fit the available viewport space.
-//  Available space = viewport minus all fixed chrome:
-//    • page padding (top 12px + bottom 16px)        = 28px
-//    • header (logo + subtitle)                      ≈ 72px
-//    • game-screen gap between elements (8px × 2)    = 16px
-//    • toolbar height                                 ≈ 52px
-//    • turn banner height                             ≈ 40px
-//    • footer (always below, not subtracted from H)   = 0px
-//  Total reserved: ~208px  (we use 210 as a safe constant)
-// ══════════════════════════════════════════════════════════════
-const RESERVED_H = 210;
-const CARD_ASPECT = 1.2;   // height = width × 1.2
-const GRID_GAP    = 6;
-
-function computeCardDimensions(totalCards) {
-  const availW = Math.min(window.innerWidth - 20, 960);
-  // For the height budget we use the visible area of the sandbox/window.
-  // document.documentElement.clientHeight is more reliable than innerHeight
-  // in iframes (which is what the Claude sandbox uses).
-  const viewH  = document.documentElement.clientHeight || window.innerHeight;
-  const availH = Math.max(viewH - RESERVED_H, 200); // never go below 200px
-
-  let bestW = 0;
-  for (const cols of getColOptions(totalCards)) {
-    const rows   = Math.ceil(totalCards / cols);
-    const wByW   = Math.floor((availW - GRID_GAP * (cols - 1)) / cols);
-    const maxH   = Math.floor((availH - GRID_GAP * (rows - 1)) / rows);
-    const wByH   = Math.floor(maxH / CARD_ASPECT);
-    const w      = Math.min(wByW, wByH);
-    if (w > bestW) bestW = w;
-  }
-
-  // Apply S/M/L scale preference
-  let cardW = Math.round(bestW * (SIZE_SCALE[state.cardSize] || 1.0));
-  cardW = Math.max(cardW, 44);   // minimum tappable size
-  cardW = Math.min(cardW, 200);  // maximum sensible size
-
-  const cardH = Math.round(cardW * CARD_ASPECT);
-  const cols  = bestColsForWidth(totalCards, cardW, availW);
-
-  return { cardW, cardH, cols };
-}
-
-function getColOptions(n) {
-  if (n <= 6)  return [3, 2];
-  if (n <= 8)  return [4, 3];
-  if (n <= 12) return [4, 3, 6];
-  if (n <= 16) return [4, 5, 8];
-  if (n <= 20) return [5, 4, 10];
-  if (n <= 24) return [6, 4, 8];
-  return             [8, 6, 10, 12];
-}
-
-function bestColsForWidth(n, cardW, availW) {
-  const maxCols = Math.floor((availW + GRID_GAP) / (cardW + GRID_GAP));
-  const opts    = getColOptions(n);
-  for (const c of [...opts].sort((a,b) => b - a)) {
-    if (c <= maxCols) return c;
-  }
-  return opts[0];
-}
-
-// ══════════════════════════════════════════════════════════════
-//  RENDER GRID
-// ══════════════════════════════════════════════════════════════
-function renderGrid() {
-  const grid = document.getElementById('card-grid');
-  const n    = state.cards.length;
-  const { cardW, cardH, cols } = computeCardDimensions(n);
-
-  grid.style.gridTemplateColumns = `repeat(${cols}, ${cardW}px)`;
-  grid.style.gap   = GRID_GAP + 'px';
-  grid.style.width = (cardW * cols + GRID_GAP * (cols - 1)) + 'px';
-  grid.innerHTML   = '';
-
-  state.cards.forEach((card, idx) => {
-    const slot = document.createElement('div');
-    slot.className = 'card-slot';
-    slot.id = `slot-${idx}`;
-    slot.style.width  = cardW + 'px';
-    slot.style.height = cardH + 'px';
-
-    const wrap = document.createElement('div');
-    wrap.className = 'card-wrap';
-    wrap.dataset.idx = idx;
-    wrap.style.width  = cardW + 'px';
-    wrap.style.height = cardH + 'px';
-
-    const frontBg     = card.bg ? card.bg : '#fff';
-    const frontBorder = card.bg ? card.bg : '#eee';
-
-    wrap.innerHTML = `
-      <div class="card-inner">
-        <div class="card-face card-back"></div>
-        <div class="card-face card-front"
-             style="background:${frontBg};border-color:${frontBorder}">
-          ${buildFrontContent(card, cardW, cardH)}
-        </div>
-      </div>`;
-
-    wrap.addEventListener('click', () => onCardClick(idx));
-    slot.appendChild(wrap);
-    grid.appendChild(slot);
-  });
-}
-
-// ── Front content ──────────────────────────────────────────
-function buildFrontContent(card, cardW, cardH) {
-  if (card.pipEmoji !== undefined) {
-    const count     = parseInt(card.label);
-    const pipSize   = pipFontSize(count, cardW);
-    const labelSize = Math.max(Math.round(cardW * .15), 9);
-    let pips = '';
-    for (let i=0; i<count; i++)
-      pips += `<span style="font-size:${pipSize}px;line-height:1">${card.pipEmoji}</span>`;
-    return `
-      <div class="pip-grid" style="max-height:${Math.round(cardH*.73)}px">${pips}</div>
-      <span style="font-family:var(--font-display);font-size:${labelSize}px;color:var(--navy)">${card.label}</span>`;
-  }
-  if (card.word !== undefined) {
-    const letterSize = Math.max(Math.round(cardW * .34), 14);
-    const emojiSize  = Math.max(Math.round(cardW * .28), 14);
-    const wordSize   = Math.max(Math.round(cardW * .12), 8);
-    return `
-      <span style="font-family:var(--font-display);font-size:${letterSize}px;color:var(--navy);line-height:1">${card.label}</span>
-      <span style="font-size:${emojiSize}px;line-height:1.1">${card.emoji}</span>
-      <span class="card-word" style="font-size:${wordSize}px">${card.word}</span>`;
-  }
-  const emojiSize  = Math.max(Math.round(cardW * .40), 16);
-  const labelSize  = Math.max(Math.round(cardW * .17), 9);
-  const labelColor = card.bg ? '#fff' : 'var(--navy)';
-  return `
-    <span style="font-size:${emojiSize}px">${card.emoji}</span>
-    <span style="font-family:var(--font-display);font-size:${labelSize}px;color:${labelColor}">${card.label}</span>`;
-}
-
-function pipFontSize(n, w) {
-  if (n <= 2)  return Math.min(Math.round(w * .46), 44);
-  if (n <= 4)  return Math.min(Math.round(w * .34), 36);
-  if (n <= 6)  return Math.min(Math.round(w * .27), 28);
-  if (n <= 9)  return Math.min(Math.round(w * .21), 22);
-  if (n <= 12) return Math.min(Math.round(w * .18), 19);
-  if (n <= 16) return Math.min(Math.round(w * .15), 16);
-  if (n <= 20) return Math.min(Math.round(w * .13), 14);
-  return           Math.min(Math.round(w * .11), 12);
-}
-
-// ══════════════════════════════════════════════════════════════
-//  CARD CLICK
-// ══════════════════════════════════════════════════════════════
-function onCardClick(idx) {
-  if (state.locked) return;
-  const card = state.cards[idx];
-  if (state.matched.includes(card.id)) return;
-  if (state.flipped.includes(idx)) return;
-  if (state.flipped.length >= 2) return;
-
-  flipCard(idx, true);
-  state.flipped.push(idx);
-
-  if (state.flipped.length === 2) {
-    state.locked = true;
-    const [a,b] = state.flipped.map(i => state.cards[i]);
-    setTimeout(() => {
-      if (a.id === b.id) handleMatch();
-      else handleMismatch();
-    }, 900);
-  }
-}
-function flipCard(idx, faceUp) {
-  const w = document.querySelector(`.card-wrap[data-idx="${idx}"]`);
-  if (w) w.classList.toggle('flipped', faceUp);
-}
-
-// ══════════════════════════════════════════════════════════════
-//  MATCH / MISMATCH
-// ══════════════════════════════════════════════════════════════
-function handleMatch() {
-  const [i0,i1] = state.flipped;
-  const id = state.cards[i0].id;
-  state.matched.push(id);
-  state.scores[state.currentPlayer]++;
-
-  [i0,i1].forEach(idx => {
-    const w = document.querySelector(`.card-wrap[data-idx="${idx}"]`);
-    if (!w) return;
-    w.classList.add('done','popping');
-    w.addEventListener('animationend', () => {
-      const slot = document.getElementById(`slot-${idx}`);
-      if (slot) slot.classList.add('collapsing');
-    }, {once:true});
-  });
-
-  state.flipped = [];
-  state.locked  = false;
-  updateScoreboard();
-
-  if (state.matched.length === state.cards.length / 2) {
-    setTimeout(showWinScreen, 950);
-  } else {
-    updateTurnBanner();
-  }
-}
-
-function handleMismatch() {
-  const [i0,i1] = state.flipped;
-  [i0,i1].forEach(idx => {
-    const w = document.querySelector(`.card-wrap[data-idx="${idx}"]`);
-    if (w) w.classList.add('mismatch');
-    setTimeout(() => { if(w){ w.classList.remove('mismatch'); flipCard(idx,false); } }, 400);
-  });
-  state.flipped = [];
-  if (state.playerCount > 1) state.currentPlayer = (state.currentPlayer+1) % state.playerCount;
-  setTimeout(() => {
-    state.locked = false;
-    updateScoreboard();
-    updateTurnBanner();
-  }, 450);
-}
-
-function updateTurnBanner() {
-  const banner = document.getElementById('turn-banner');
-  const name   = state.playerNames[state.currentPlayer] || DEFAULT_NAMES[state.currentPlayer];
-  const color  = PLAYER_COLOR_HEX[state.currentPlayer];
-  if (state.playerCount === 1) {
-    banner.textContent = `🃏 ${state.matched.length} match${state.matched.length!==1?'es':''} found — keep going!`;
-  } else {
-    banner.innerHTML = `<span style="color:${color};font-weight:900">${name}'s</span> turn!`;
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-//  WIN SCREEN
-// ══════════════════════════════════════════════════════════════
-function showWinScreen() {
-  showScreen('win-screen');
-  launchConfetti();
-  const maxScore   = Math.max(...state.scores);
-  const resultsDiv = document.getElementById('win-results');
-  resultsDiv.innerHTML = '';
-  const order = [...Array(state.playerCount).keys()].sort((a,b) => state.scores[b]-state.scores[a]);
-  order.forEach(i => {
-    const name     = state.playerNames[i] || DEFAULT_NAMES[i];
-    const isWinner = state.scores[i] === maxScore;
-    const card     = document.createElement('div');
-    card.className = 'win-result-card' + (isWinner ? ' winner' : '');
-    card.innerHTML = `
-      ${isWinner ? '<div style="font-size:1.5rem">🥇</div>' : ''}
-      <div class="win-result-name" style="color:${PLAYER_COLOR_HEX[i]}">${name}</div>
-      <div class="win-result-pts">${state.scores[i]}</div>
-      <div class="win-result-label">matches</div>`;
-    resultsDiv.appendChild(card);
-  });
-}
-
-// ══════════════════════════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════════════════════════
-function showScreen(id) {
-  ['setup-screen','game-screen','win-screen'].forEach(s =>
-    document.getElementById(s).classList.toggle('hidden', s !== id)
-  );
-}
-function shuffle(arr) {
-  for (let i=arr.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
-}
-
-// Re-render on resize (debounced)
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (!document.getElementById('game-screen').classList.contains('hidden')) {
-      renderGrid();
+  /* ============================================================
+     SOLAR MATH (NOAA-style solar position equations)
+  ============================================================ */
+  function sunEventsUTCMinutes(dateForDayOfYear, lat, lon){
+    const d = dateForDayOfYear;
+    const dayOfYear = Math.floor((Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - Date.UTC(d.getUTCFullYear(),0,0)) / 86400000);
+    function calc(zenithDeg){
+      const gamma = 2*Math.PI/365 * (dayOfYear - 1 + 0.5);
+      const eqtime = 229.18*(0.000075 + 0.001868*Math.cos(gamma) - 0.032077*Math.sin(gamma)
+        - 0.014615*Math.cos(2*gamma) - 0.040849*Math.sin(2*gamma));
+      const decl = 0.006918 - 0.399912*Math.cos(gamma) + 0.070257*Math.sin(gamma)
+        - 0.006758*Math.cos(2*gamma) + 0.000907*Math.sin(2*gamma)
+        - 0.002697*Math.cos(3*gamma) + 0.00148*Math.sin(3*gamma);
+      const latRad = lat*Math.PI/180, zenRad = zenithDeg*Math.PI/180;
+      const cosHA = (Math.cos(zenRad)/(Math.cos(latRad)*Math.cos(decl))) - Math.tan(latRad)*Math.tan(decl);
+      if (cosHA > 1) return {rise:null, set:null};
+      if (cosHA < -1) return {rise:'allday', set:'allday'};
+      const ha = Math.acos(cosHA) * 180/Math.PI;
+      return { rise: 720 - 4*(lon+ha) - eqtime, set: 720 - 4*(lon-ha) - eqtime };
     }
-  }, 150);
-});
-
-// ══════════════════════════════════════════════════════════════
-//  CONFETTI
-// ══════════════════════════════════════════════════════════════
-function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx    = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const COLORS = ['#FF4757','#4D96FF','#6BCB77','#FFD93D','#C77DFF','#FF7F50','#FF6EB4','#00D2C6'];
-  const pieces = Array.from({length:150}, () => ({
-    x: Math.random()*canvas.width, y: Math.random()*-canvas.height,
-    r: Math.random()*8+4, d: Math.random()*3+1,
-    c: COLORS[Math.floor(Math.random()*COLORS.length)],
-    tilt: Math.random()*10-5, tiltV: Math.random()*.1-.05,
-    rot: Math.random()*Math.PI*2, rotV: (Math.random()-.5)*.12,
-    shape: Math.random()>.5 ? 'rect' : 'circle',
-  }));
-  let frame = 0;
-  function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    pieces.forEach(p => {
-      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
-      if (p.shape==='circle') { ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
-      else ctx.fillRect(-p.r,-p.r*.5,p.r*2,p.r);
-      ctx.restore();
-      p.y+=p.d+1; p.x+=Math.sin(frame*.02+p.tilt)*1.5;
-      p.rot+=p.rotV; p.tilt+=p.tiltV;
-      if (p.y>canvas.height+20) { p.y=-10; p.x=Math.random()*canvas.width; }
-    });
-    frame++;
-    if (frame<300) requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+    const sun = calc(90.833), civil = calc(96);
+    return { sunrise:sun.rise, sunset:sun.set, civilDawn:civil.rise, civilDusk:civil.set };
   }
-  draw();
-}
 
-// ── Init
-showScreen('setup-screen');
+  function tzOffsetMinutes(date, timeZone){
+    try{
+      const dtf = new Intl.DateTimeFormat('en-US', {
+        timeZone, hourCycle:'h23', year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit'
+      });
+      const parts = {};
+      dtf.formatToParts(date).forEach(p => { if (p.type !== 'literal') parts[p.type] = p.value; });
+      const asUTC = Date.UTC(parts.year, parts.month-1, parts.day, parts.hour, parts.minute, parts.second);
+      return Math.round((asUTC - date.getTime())/60000);
+    }catch(e){ return -date.getTimezoneOffset(); }
+  }
+
+  function getSunTimesLocal(dateStr, lat, lon, timeZone){
+    const [y,m,dd] = dateStr.split('-').map(Number);
+    const noonUTC = new Date(Date.UTC(y, m-1, dd, 12, 0, 0));
+    const offset = tzOffsetMinutes(noonUTC, timeZone);
+    const utcEv = sunEventsUTCMinutes(noonUTC, lat, lon);
+    const toLocal = (v) => (v==null || v==='allday') ? v : v + offset;
+    return {
+      sunrise: toLocal(utcEv.sunrise),
+      sunset: toLocal(utcEv.sunset),
+      civilDawn: toLocal(utcEv.civilDawn),
+      civilDusk: toLocal(utcEv.civilDusk)
+    };
+  }
+
+  function fmtTime(min){
+    if (min == null) return '—';
+    if (min === 'allday') return '24h daylight';
+    if (min === 'never') return 'no sunrise today';
+    let m = ((Math.round(min) % 1440) + 1440) % 1440;
+    let h = Math.floor(m/60), mm = m%60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    let h12 = h % 12; if (h12 === 0) h12 = 12;
+    return `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+  }
+
+  function parseHM(s){
+    const [h,m] = s.split(':').map(Number);
+    return h*60 + m;
+  }
+
+  function dateToStr(d){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function addDays(d, n){
+    const nd = new Date(d);
+    nd.setDate(nd.getDate()+n);
+    return nd;
+  }
+  function addMonths(d, n){
+    const nd = new Date(d);
+    nd.setMonth(nd.getMonth()+n);
+    return nd;
+  }
+  function niceDate(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    return dt.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+  }
+
+  /* ============================================================
+     LIGHT CLASSIFICATION + GEAR
+  ============================================================ */
+  function classifyLight(t, sun){
+    if (sun.civilDawn == null) return { cat:'dark', golden:false };
+    if (sun.civilDawn === 'allday') return { cat:'daylight', golden:false };
+    if (t < sun.civilDawn || t > sun.civilDusk) return { cat:'dark', golden:false };
+    if (t < sun.sunrise || t > sun.sunset) return { cat:'twilight', golden:false };
+    const golden = (t - sun.sunrise <= 40) || (sun.sunset - t <= 40);
+    return { cat:'daylight', golden };
+  }
+
+  const CAT_RANK = { dark:3, twilight:2, daylight:1 };
+  const CAT_LABEL = { dark:'Dark', twilight:'Twilight', daylight:'Daylight' };
+
+  function gearFor(cat, golden, mode, weather, units){
+    const items = [];
+    if (cat === 'dark') {
+      items.push('Reflective vest or high-visibility gear');
+      items.push(mode === 'bike' ? 'Front white light + rear red light (required for safe riding)' : 'Flashlight or headlamp');
+      items.push('Reflective tape or clip-on lights on bag/shoes');
+    } else if (cat === 'twilight') {
+      items.push('Bright or reflective clothing recommended');
+      if (mode === 'bike') items.push('Bike lights recommended — visibility to drivers matters more than seeing the road');
+      if (mode === 'walk') items.push('A small reflective accessory goes a long way at this hour');
+    } else if (golden) {
+      items.push('Low sun glare — light or bright colors help drivers see you');
+      items.push('Sunglasses help with glare heading into/out of school');
+    } else {
+      items.push('Good daylight visibility — no special gear needed');
+    }
+    if (weather) {
+      if (weather.precip != null && weather.precip >= 40) items.push('Rain likely — waterproof jacket, pack cover, extra following distance if driving');
+      if (weather.code >= 71 && weather.code <= 86) items.push('Snow expected — add travel time and watch footing/traction');
+      const windLimit = units === 'imperial' ? 20 : 32;
+      if (weather.wind != null && weather.wind >= windLimit) items.push('Windy — secure loose gear, extra caution on a bike');
+      const freezing = units === 'imperial' ? 32 : 0;
+      if (weather.temp != null && weather.temp <= freezing) items.push('Below freezing — layer up and watch for ice underfoot');
+    }
+    return items;
+  }
+
+  /* ============================================================
+     GEOCODING
+  ============================================================ */
+  function fetchWithTimeout(url, opts, ms){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms || 9000);
+    return fetch(url, Object.assign({}, opts, { signal: controller.signal }))
+      .finally(() => clearTimeout(timer));
+  }
+
+  async function geocodeLocation(query){
+    query = query.trim();
+    const isZip = /^\d{5}(-\d{4})?$/.test(query);
+    const url = isZip
+      ? `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(query)}&country=us&format=jsonv2&limit=6&addressdetails=1`
+      : `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&limit=6&addressdetails=1`;
+    let res;
+    try{
+      res = await fetchWithTimeout(url, { headers: { 'Accept-Language':'en' } }, 9000);
+    }catch(e){
+      if (e.name === 'AbortError') throw new Error('TIMEOUT');
+      throw new Error('NETWORK');
+    }
+    if (!res.ok) throw new Error('NETWORK');
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return [];
+    return data.map(r => {
+      const a = r.address || {};
+      const place = a.city || a.town || a.village || a.hamlet || a.county || (r.display_name || '').split(',')[0];
+      const bits = [place, a.state, isZip ? query : null].filter(Boolean);
+      return {
+        name: bits.join(', '),
+        lat: parseFloat(r.lat),
+        lon: parseFloat(r.lon)
+      };
+    });
+  }
+
+  async function resolveTimezone(lat, lon){
+    try{
+      const res = await fetchWithTimeout(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&daily=sunrise&forecast_days=1`, {}, 9000);
+      const data = await res.json();
+      return data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    }catch(e){
+      // Fall back to the browser's own timezone rather than failing outright —
+      // wrong for locations far from the user, but keeps the app usable offline.
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    }
+  }
+
+  async function fetchWeather(){
+    if (!state.location) return;
+    const { lat, lon } = state.location;
+    const tempUnit = state.units === 'imperial' ? 'fahrenheit' : 'celsius';
+    const windUnit = state.units === 'imperial' ? 'mph' : 'kmh';
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,precipitation_probability,weathercode,windspeed_10m&temperature_unit=${tempUnit}&windspeed_unit=${windUnit}&forecast_days=16&timezone=auto`;
+    try{
+      const res = await fetchWithTimeout(url, {}, 9000);
+      const data = await res.json();
+      state.weatherHourly = data.hourly || null;
+      state.weatherFetchedFor = `${lat},${lon},${state.units}`;
+    }catch(e){
+      state.weatherHourly = null;
+    }
+  }
+
+  function getWeatherAt(dateStr, minutes){
+    if (!state.weatherHourly || !state.weatherHourly.time) return null;
+    let hour = Math.round(minutes/60);
+    if (hour >= 24) hour = 23;
+    if (hour < 0) hour = 0;
+    const key = `${dateStr}T${String(hour).padStart(2,'0')}:00`;
+    const idx = state.weatherHourly.time.indexOf(key);
+    if (idx === -1) return null;
+    const code = state.weatherHourly.weathercode[idx];
+    return {
+      temp: state.weatherHourly.temperature_2m[idx],
+      precip: state.weatherHourly.precipitation_probability[idx],
+      code: code,
+      wind: state.weatherHourly.windspeed_10m[idx],
+      label: (WEATHER_CODES[code] || ['—','·'])[0],
+      icon: (WEATHER_CODES[code] || ['—','·'])[1]
+    };
+  }
+
+  /* ============================================================
+     TRIP WAYPOINT COMPUTATION
+  ============================================================ */
+  function computeWaypoints(legType, cfg){
+    const meta = MODE_META[cfg.mode];
+    const travelMin = (cfg.distance > 0 && cfg.speed > 0) ? (cfg.distance/cfg.speed)*60 : 0;
+    const sch = state.school;
+    let wps = [];
+    if (legType === 'dropoff') {
+      const arriveSchool = parseHM(sch.start) - sch.arriveEarly;
+      const departHome = arriveSchool - travelMin;
+      if (meta.selfPowered) {
+        wps.push({ t: departHome, label:'Leave home' });
+        wps.push({ t: arriveSchool, label:'Arrive at school' });
+        if (cfg.roundTrip) {
+          wps.push({ t: arriveSchool + travelMin, label:'Back home alone' });
+        }
+      } else {
+        const board = departHome;
+        wps.push({ t: board - cfg.waitTime, label:'Waiting outside' });
+        wps.push({ t: board, label: cfg.mode === 'bus' ? 'Board the bus' : 'Depart by car' });
+      }
+    } else {
+      const departSchool = parseHM(sch.end) + sch.dismissDelay;
+      const arriveHome = departSchool + travelMin;
+      if (meta.selfPowered) {
+        if (cfg.roundTrip) {
+          wps.push({ t: departSchool - travelMin, label:'Leave home to pick up' });
+        }
+        wps.push({ t: departSchool, label:'Leave school' });
+        wps.push({ t: arriveHome, label:'Arrive home' });
+      } else {
+        wps.push({ t: departSchool, label:'Waiting for pickup' });
+        wps.push({ t: departSchool + cfg.waitTime, label: cfg.mode === 'bus' ? 'Board the bus' : 'Depart by car' });
+      }
+    }
+    return wps;
+  }
+
+  function worstCondition(wps, sun){
+    let worst = { cat:'daylight', golden:false, rank:0 };
+    wps.forEach(w => {
+      const c = classifyLight(w.t, sun);
+      const rank = CAT_RANK[c.cat];
+      if (rank > worst.rank || (rank === worst.rank && c.golden)) {
+        worst = { cat:c.cat, golden:c.golden, rank };
+      }
+    });
+    return worst;
+  }
+
+  /* ============================================================
+     RENDER: LOCATION
+  ============================================================ */
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  async function doGeocodeSearch(){
+    const q = $('#loc-input').value;
+    if (!q.trim()) return;
+    $('#loc-status').textContent = 'Searching…';
+    $('#loc-status').className = 'status-msg';
+    $('#loc-results').innerHTML = '';
+    try{
+      const results = await geocodeLocation(q);
+      if (!results.length) {
+        $('#loc-status').textContent = "Couldn't find that place — try a nearby city name instead.";
+        $('#loc-status').className = 'status-msg err';
+        return;
+      }
+      $('#loc-status').textContent = '';
+      if (results.length === 1) {
+        chooseLocation(results[0]);
+      } else {
+        $('#loc-results').innerHTML = results.map((r,i) =>
+          `<button class="location-result" data-idx="${i}">${r.name}</button>`).join('');
+        $$('.location-result').forEach(btn => {
+          btn.addEventListener('click', () => chooseLocation(results[parseInt(btn.dataset.idx)]));
+        });
+      }
+    }catch(e){
+      if (e.message === 'TIMEOUT') {
+        $('#loc-status').textContent = 'Location lookup timed out. Try again — the map service may be slow right now.';
+      } else {
+        $('#loc-status').textContent = "Couldn't reach the location service. This happens if the page is opened as a local file, or in a preview that blocks outside network requests — host the file on a real web address (e.g. GitHub Pages) and it will work normally.";
+      }
+      $('#loc-status').className = 'status-msg err';
+    }
+  }
+
+  async function chooseLocation(loc){
+    $('#loc-status').textContent = 'Loading timezone & sun data…';
+    $('#loc-status').className = 'status-msg';
+    $('#loc-results').innerHTML = '';
+    try{
+      const timezone = loc.timezone || await resolveTimezone(loc.lat, loc.lon);
+      state.location = { name: loc.name, lat: loc.lat, lon: loc.lon, timezone };
+      $('#loc-status').textContent = '';
+      $('#loc-chosen').innerHTML = `<span class="location-chip">📍 ${loc.name} <button id="loc-clear" aria-label="Change location">✕</button></span>`;
+      $('#loc-clear').addEventListener('click', () => {
+        state.location = null;
+        $('#loc-chosen').innerHTML = '';
+        $('#setup-section').style.display = 'none';
+        $('#loc-input').value = '';
+      });
+      $('#setup-section').style.display = 'block';
+      await fetchWeather();
+      renderAll();
+    }catch(e){
+      $('#loc-status').textContent = 'Could not resolve timezone for that location. Try another nearby city.';
+      $('#loc-status').className = 'status-msg err';
+    }
+  }
+
+  /* ============================================================
+     RENDER: LEG CONFIG CARDS
+  ============================================================ */
+  function renderLegConfig(legType){
+    const cfg = state.legs[legType];
+    const container = $(`#${legType}-body`);
+    const roundTripLabel = legType === 'dropoff'
+      ? 'I also have to walk/ride back home afterward'
+      : 'I also have to walk/ride there before pickup (round trip)';
+    container.innerHTML = `
+      <div class="mode-grid">
+        ${Object.keys(MODE_META).map(m => `
+          <button type="button" class="mode-btn ${cfg.mode===m?'active':''}" data-mode="${m}" data-leg="${legType}">
+            <span class="ic">${MODE_META[m].icon}</span>${MODE_META[m].label}
+          </button>`).join('')}
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Distance (${state.units==='imperial'?'mi':'km'})</label>
+          <input type="number" min="0" step="0.1" value="${cfg.distance}" data-field="distance" data-leg="${legType}">
+        </div>
+        <div class="field">
+          <label>Avg speed (${state.units==='imperial'?'mph':'km/h'})</label>
+          <input type="number" min="0" step="0.1" value="${cfg.speed}" data-field="speed" data-leg="${legType}">
+        </div>
+        ${!MODE_META[cfg.mode].selfPowered ? `
+        <div class="field">
+          <label>Time waiting outside (min)</label>
+          <input type="number" min="0" step="1" value="${cfg.waitTime}" data-field="waitTime" data-leg="${legType}">
+        </div>` : ''}
+      </div>
+      ${MODE_META[cfg.mode].selfPowered ? `
+      <div class="check-row">
+        <input type="checkbox" id="${legType}-roundtrip" ${cfg.roundTrip?'checked':''}>
+        <label for="${legType}-roundtrip">${roundTripLabel}</label>
+      </div>` : ''}
+      <div class="travel-readout" id="${legType}-travel-readout"></div>
+    `;
+    updateTravelReadout(legType);
+
+    container.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const m = btn.dataset.mode;
+        state.legs[legType].mode = m;
+        state.legs[legType].speed = state.units === 'imperial' ? MODE_META[m].speedImp : MODE_META[m].speedMet;
+        renderLegConfig(legType);
+        renderAll();
+      });
+    });
+    container.querySelectorAll('input[data-field]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const field = inp.dataset.field;
+        const v = parseFloat(inp.value);
+        state.legs[legType][field] = isNaN(v) ? 0 : v;
+        updateTravelReadout(legType);
+        renderAll();
+      });
+    });
+    const rt = container.querySelector(`#${legType}-roundtrip`);
+    if (rt) rt.addEventListener('change', () => {
+      state.legs[legType].roundTrip = rt.checked;
+      renderAll();
+    });
+  }
+
+  function updateTravelReadout(legType){
+    const cfg = state.legs[legType];
+    const el = $(`#${legType}-travel-readout`);
+    if (!el) return;
+    const mins = (cfg.distance>0 && cfg.speed>0) ? (cfg.distance/cfg.speed)*60 : 0;
+    el.textContent = `Travel time: ~${mins < 1 ? '<1' : Math.round(mins)} min one-way`;
+  }
+
+  /* ============================================================
+     RENDER: TIMELINE (signature element)
+  ============================================================ */
+  function timelineGradient(sun){
+    const pct = (m) => {
+      if (m == null) return 0;
+      if (m === 'allday') return 100;
+      return Math.max(0, Math.min(100, (m/1440)*100));
+    };
+    const cd = pct(sun.civilDawn), sr = pct(sun.sunrise), ss = pct(sun.sunset), cu = pct(sun.civilDusk);
+    return `linear-gradient(90deg,
+      var(--ink) 0%, var(--ink) ${cd}%,
+      var(--twilight) ${cd}%, var(--dawn) ${sr}%,
+      var(--sky) ${sr}%, var(--sky) ${ss}%,
+      var(--dusk) ${ss}%, var(--twilight) ${cu}%,
+      var(--ink) ${cu}%, var(--ink) 100%)`;
+  }
+
+  // Waypoints that fall close together in time (as % of the 24h bar) get pushed to
+  // successive "lanes" stacked further from the bar, so their time/label text never overlaps.
+  function assignLanes(points, thresholdPct){
+    const sorted = points.slice().sort((a,b) => a.x - b.x);
+    const laneLastX = [];
+    sorted.forEach(w => {
+      let lane = 0;
+      while (laneLastX[lane] !== undefined && (w.x - laneLastX[lane]) < thresholdPct) lane++;
+      laneLastX[lane] = w.x;
+      w.lane = lane;
+    });
+    return sorted;
+  }
+
+  function renderTimelineHTML(sun, waypoints){
+    const pct = (m) => Math.max(1, Math.min(99, (((m%1440)+1440)%1440/1440)*100));
+    const points = waypoints.map((w,idx) => ({ ...w, idx, x: pct(w.t) }));
+    const laned = assignLanes(points, 15);
+    const maxLane = laned.reduce((mx,w) => Math.max(mx, w.lane), 0);
+    const LANE_GAP = 15;
+
+    const pins = laned.slice().sort((a,b) => a.idx - b.idx).map(w => {
+      const c = classifyLight(w.t, sun);
+      const timeTop = -(24 + w.lane*LANE_GAP);
+      const labelTop = 38 + w.lane*LANE_GAP;
+      return `<div class="pin c-${c.cat}" style="left:${w.x}%">
+        <span class="pin-time" style="top:${timeTop}px">${fmtTime(w.t)}</span>
+        <span class="pin-label" style="top:${labelTop}px">${w.label}</span>
+      </div>`;
+    }).join('');
+
+    const topPad = 24 + maxLane*LANE_GAP + 12;
+    const botPad = 38 + maxLane*LANE_GAP + 16;
+    return `<div class="timeline" style="margin-top:${topPad}px;margin-bottom:${botPad}px;">
+      <div class="track" style="background:${timelineGradient(sun)}"></div>
+      ${pins}
+    </div>`;
+  }
+
+  /* ============================================================
+     RENDER: DAY CARD (used in week view & date view)
+  ============================================================ */
+  function renderDayCard(dateStr){
+    const sun = getSunTimesLocal(dateStr, state.location.lat, state.location.lon, state.location.timezone);
+    let legsHTML = '';
+    let allWaypoints = [];
+
+    ['dropoff','pickup'].forEach(legType => {
+      const cfg = state.legs[legType];
+      if (!cfg.enabled) return;
+      const wps = computeWaypoints(legType, cfg);
+      allWaypoints = allWaypoints.concat(wps.map(w => ({...w, leg:legType})));
+      const worst = worstCondition(wps, sun);
+      const badgeClass = worst.golden ? 'golden' : worst.cat;
+      const badgeText = worst.golden ? 'Golden Hour Glare' : CAT_LABEL[worst.cat];
+
+      const waypointLines = wps.map(w => {
+        const c = classifyLight(w.t, sun);
+        const wx = getWeatherAt(dateStr, w.t);
+        const wxHTML = wx ? `<span class="weather-chip">${wx.icon} ${Math.round(wx.temp)}°${state.units==='imperial'?'F':'C'} · ${wx.precip}% precip</span>` : '';
+        return `<div class="waypoint-line"><span class="t">${fmtTime(w.t)}</span> — ${w.label} <em style="color:var(--muted);font-style:normal;">(${CAT_LABEL[c.cat]}${c.golden?', golden hour':''})</em>${wxHTML}</div>`;
+      }).join('');
+
+      const primaryWx = getWeatherAt(dateStr, wps[0].t);
+      const gear = gearFor(worst.cat, worst.golden, cfg.mode, primaryWx, state.units);
+
+      legsHTML += `
+        <div class="leg-result">
+          <div class="leg-result-head">
+            <span class="dot ${legType}" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${legType==='dropoff'?'var(--dawn)':'var(--dusk)'}"></span>
+            ${legType === 'dropoff' ? 'Drop-off' : 'Pickup'} · ${MODE_META[cfg.mode].icon} ${MODE_META[cfg.mode].label}
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+          ${waypointLines}
+          <ul class="gear-list">${gear.map(g => `<li>${g}</li>`).join('')}</ul>
+        </div>`;
+    });
+
+    if (!legsHTML) legsHTML = `<p class="panel-note" style="margin-top:12px;">Turn on drop-off or pickup above to see results.</p>`;
+
+    return `
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-date">${niceDate(dateStr)}</div>
+          <div class="day-sun">☀ ${fmtTime(sun.sunrise)} – ${fmtTime(sun.sunset)} &nbsp;|&nbsp; twilight ${fmtTime(sun.civilDawn)} / ${fmtTime(sun.civilDusk)}</div>
+        </div>
+        ${allWaypoints.length ? renderTimelineHTML(sun, allWaypoints) : ''}
+        ${legsHTML}
+      </div>`;
+  }
+
+  /* ============================================================
+     RENDER: WEEK VIEW
+  ============================================================ */
+  function renderWeekView(){
+    const el = $('#view-week');
+    if (!state.location) { el.innerHTML=''; return; }
+    let html = `<p class="panel-note" style="margin-bottom:14px;">Today through the next 7 days for ${state.location.name}.${!state.weatherHourly ? ' (Weather unavailable right now — showing daylight only.)' : ''}</p>`;
+    const today = new Date();
+    for (let i=0;i<7;i++){
+      html += renderDayCard(dateToStr(addDays(today,i)));
+    }
+    el.innerHTML = html;
+  }
+
+  /* ============================================================
+     RENDER: DATE VIEW
+  ============================================================ */
+  function renderDateView(){
+    const el = $('#view-date');
+    if (!state.location) { el.innerHTML=''; return; }
+    if (!state.pickedDate) {
+      state.pickedDate = dateToStr(addDays(new Date(),1));
+    }
+    let html = `
+      <div class="panel">
+        <div class="field" style="max-width:220px;">
+          <label for="date-picker">Choose a date</label>
+          <input type="date" id="date-picker" value="${state.pickedDate}">
+        </div>
+      </div>
+      <div id="date-result"></div>
+    `;
+    el.innerHTML = html;
+    $('#date-picker').addEventListener('change', (e) => {
+      state.pickedDate = e.target.value;
+      $('#date-result').innerHTML = renderDayCard(state.pickedDate);
+    });
+    $('#date-result').innerHTML = renderDayCard(state.pickedDate);
+  }
+
+  /* ============================================================
+     RENDER: MONTH TREND VIEW
+  ============================================================ */
+  function findTransitions(days, refMinutes){
+    const out = [];
+    let prevCat = null;
+    days.forEach(day => {
+      const c = classifyLight(refMinutes, day.sun).cat;
+      if (prevCat && c !== prevCat) {
+        out.push({ date: day.dateStr, from: prevCat, to: c });
+      }
+      prevCat = c;
+    });
+    return out;
+  }
+
+  // Draws one row per day: a full 24h light-timeline strip (same dark/twilight/day/twilight/dark
+  // bands as the day-card signature element), with two fixed vertical reference lines marking the
+  // constant leave-home and arrive-home clock times. Scanning down the rows shows the daylight
+  // band sliding earlier/later through the year, and where it crosses your fixed commute times.
+  function drawLightCalendar(canvas, days, dropoffRef, pickupRef){
+    const dpr = window.devicePixelRatio || 1;
+    const labelW = 74;
+    const rowH = 14;
+    const headerH = 22;
+    const rightPad = 6;
+    const cssWidth = Math.max(320, canvas.parentElement.clientWidth);
+    const cssHeight = headerH + days.length * rowH + 6;
+
+    canvas.width = Math.round(cssWidth * dpr);
+    canvas.height = Math.round(cssHeight * dpr);
+    canvas.style.width = cssWidth + 'px';
+    canvas.style.height = cssHeight + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    const chartX = labelW;
+    const chartW = cssWidth - labelW - rightPad;
+    const css = getComputedStyle(document.documentElement);
+    const colors = {
+      dark: css.getPropertyValue('--ink').trim(),
+      twilight: css.getPropertyValue('--twilight').trim(),
+      sky: css.getPropertyValue('--sky').trim(),
+      dusk: css.getPropertyValue('--dusk').trim(),
+      dawn: css.getPropertyValue('--dawn').trim(),
+      ink: css.getPropertyValue('--ink').trim(),
+      muted: css.getPropertyValue('--muted').trim()
+    };
+
+    // Time-of-day axis across the top
+    ctx.fillStyle = colors.muted;
+    ctx.font = '9.5px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    [0,6,12,18,24].forEach(hr => {
+      const x = chartX + (hr/24)*chartW;
+      const label = hr===12 ? '12 PM' : hr===0 || hr===24 ? '12 AM' : (hr>12 ? (hr-12)+' PM' : hr+' AM');
+      ctx.fillText(label, x, 13);
+    });
+
+    let lastMonth = null;
+    days.forEach((day, i) => {
+      const y = headerH + i*rowH;
+      const sun = day.sun;
+      const clampM = v => (v==null) ? 0 : (v==='allday' ? 1440 : Math.max(0, Math.min(1440, v)));
+      const cd = clampM(sun.civilDawn), sr = clampM(sun.sunrise), ss = clampM(sun.sunset), cu = clampM(sun.civilDusk);
+      const bounds = [0, cd, sr, ss, cu, 1440];
+      const segColors = [colors.dark, colors.twilight, colors.sky, colors.twilight, colors.dark];
+      for (let s=0; s<5; s++){
+        const x0 = chartX + (bounds[s]/1440)*chartW;
+        const x1 = chartX + (bounds[s+1]/1440)*chartW;
+        if (x1 > x0){
+          ctx.fillStyle = segColors[s];
+          ctx.fillRect(x0, y, Math.max(0.5, x1-x0), rowH-1.5);
+        }
+      }
+      // month separators + label
+      const isNewMonth = day.monthKey !== lastMonth;
+      lastMonth = day.monthKey;
+      ctx.fillStyle = isNewMonth ? colors.ink : colors.muted;
+      ctx.font = isNewMonth ? '600 9.5px "JetBrains Mono", monospace' : '9.5px "JetBrains Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(day.label, 0, y + rowH - 4);
+      if (isNewMonth && i > 0){
+        ctx.strokeStyle = 'rgba(18,23,43,0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(chartX, y+0.5);
+        ctx.lineTo(chartX+chartW, y+0.5);
+        ctx.stroke();
+      }
+    });
+
+    const drawRef = (t, color) => {
+      if (t == null) return;
+      const tm = ((t%1440)+1440)%1440;
+      const x = chartX + (tm/1440)*chartW;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath();
+      ctx.moveTo(x, headerH);
+      ctx.lineTo(x, headerH + days.length*rowH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+    drawRef(dropoffRef, colors.dawn);
+    drawRef(pickupRef, colors.dusk);
+  }
+
+  function renderMonthTrend(){
+    const el = $('#view-month');
+    if (!state.location) { el.innerHTML=''; return; }
+
+    const today = new Date();
+    const endDate = addMonths(today, state.monthSpan);
+    const totalDays = Math.round((endDate - today) / 86400000);
+
+    const days = [];
+    for (let i=0;i<totalDays;i++){
+      const d = addDays(today, i);
+      const dateStr = dateToStr(d);
+      const sun = getSunTimesLocal(dateStr, state.location.lat, state.location.lon, state.location.timezone);
+      days.push({
+        dateStr, sun,
+        label: `${d.getMonth()+1}/${d.getDate()} ${d.toLocaleDateString('en-US',{weekday:'short'})}`,
+        monthKey: `${d.getFullYear()}-${d.getMonth()}`
+      });
+    }
+
+    const dropoffWps = state.legs.dropoff.enabled ? computeWaypoints('dropoff', state.legs.dropoff) : null;
+    const pickupWps = state.legs.pickup.enabled ? computeWaypoints('pickup', state.legs.pickup) : null;
+    const dropoffRef = dropoffWps ? dropoffWps[0].t : null;
+    const pickupRef = pickupWps ? pickupWps[pickupWps.length-1].t : null;
+
+    el.innerHTML = `
+      <div class="row" style="margin-bottom:14px;">
+        <div class="toggle-pill" id="month-span-toggle">
+          <button data-span="3" class="${state.monthSpan===3?'active':''}">3 months</button>
+          <button data-span="7" class="${state.monthSpan===7?'active':''}">7 months</button>
+          <button data-span="10" class="${state.monthSpan===10?'active':''}">10 months</button>
+          <button data-span="12" class="${state.monthSpan===12?'active':''}">12 months</button>
+        </div>
+      </div>
+      <div class="month-chart-wrap">
+        <p class="month-chart-title">Your light calendar</p>
+        <p class="month-chart-sub">One row per day — the band shows dark / twilight / daylight across 24 hours. Dashed lines are your fixed commute times.</p>
+        <div class="calendar-scroll"><canvas id="light-calendar"></canvas></div>
+        <div class="calendar-legend">
+          ${dropoffWps ? `<span><span class="sw" style="background:var(--dawn)"></span>Leave-home time (${fmtTime(dropoffRef)})</span>` : ''}
+          ${pickupWps ? `<span><span class="sw" style="background:var(--dusk)"></span>Arrive-home time (${fmtTime(pickupRef)})</span>` : ''}
+          <span><span class="sw" style="background:var(--ink)"></span>Dark</span>
+          <span><span class="sw" style="background:var(--twilight)"></span>Twilight</span>
+          <span><span class="sw" style="background:var(--sky)"></span>Daylight</span>
+        </div>
+      </div>
+      <div class="month-chart-wrap">
+        <p class="month-chart-title">When conditions change</p>
+        <p class="month-chart-sub">First dates your commute crosses into twilight or full dark, over the selected range.</p>
+        <div id="transitions-list"></div>
+      </div>
+    `;
+
+    $('#month-span-toggle').querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.monthSpan = parseInt(btn.dataset.span);
+        renderMonthTrend();
+      });
+    });
+
+    const canvas = document.getElementById('light-calendar');
+    drawLightCalendar(canvas, days, dropoffRef, pickupRef);
+    state._monthRedraw = () => { if ($('#light-calendar')) drawLightCalendar($('#light-calendar'), days, dropoffRef, pickupRef); };
+
+    const transitions = [];
+    if (dropoffWps) findTransitions(days, dropoffRef).forEach(t => transitions.push({...t, leg:'Drop-off'}));
+    if (pickupWps) findTransitions(days, pickupRef).forEach(t => transitions.push({...t, leg:'Pickup'}));
+    const listEl = $('#transitions-list');
+    if (!transitions.length) {
+      listEl.innerHTML = `<p class="panel-note">No change in light conditions expected in this window — your times stay in the same zone throughout.</p>`;
+    } else {
+      listEl.innerHTML = transitions.map(t => `
+        <div class="transition-item">
+          <span class="badge ${t.to}">${CAT_LABEL[t.to]}</span>
+          <span>${t.leg} shifts from ${CAT_LABEL[t.from].toLowerCase()} to ${CAT_LABEL[t.to].toLowerCase()} around <strong>${niceDate(t.date)}</strong></span>
+        </div>`).join('');
+    }
+  }
+
+  /* ============================================================
+     GLOBAL RENDER + WIRING
+  ============================================================ */
+  function renderAll(){
+    if (!state.location) return;
+    if (state.view === 'week') renderWeekView();
+    if (state.view === 'date') renderDateView();
+    if (state.view === 'month') renderMonthTrend();
+  }
+
+  function wireStatic(){
+    $('#loc-search-btn').addEventListener('click', doGeocodeSearch);
+    $('#loc-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') doGeocodeSearch(); });
+
+    $('#school-start').addEventListener('input', e => { state.school.start = e.target.value; renderAll(); });
+    $('#school-end').addEventListener('input', e => { state.school.end = e.target.value; renderAll(); });
+    $('#arrive-early').addEventListener('input', e => { state.school.arriveEarly = parseFloat(e.target.value)||0; renderAll(); });
+    $('#dismiss-delay').addEventListener('input', e => { state.school.dismissDelay = parseFloat(e.target.value)||0; renderAll(); });
+
+    $('#dropoff-enabled').addEventListener('change', e => {
+      state.legs.dropoff.enabled = e.target.checked;
+      $('#dropoff-body').classList.toggle('show', e.target.checked);
+      renderAll();
+    });
+    $('#pickup-enabled').addEventListener('change', e => {
+      state.legs.pickup.enabled = e.target.checked;
+      $('#pickup-body').classList.toggle('show', e.target.checked);
+      renderAll();
+    });
+
+    $$('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $$('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.view = btn.dataset.view;
+        $$('.view-panel').forEach(p => p.style.display = 'none');
+        $(`#view-${state.view}`).style.display = 'block';
+        renderAll();
+      });
+    });
+
+    $('#units-toggle').querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (btn.dataset.units === state.units) return;
+        state.units = btn.dataset.units;
+        $('#units-toggle').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        ['dropoff','pickup'].forEach(legType => {
+          const cfg = state.legs[legType];
+          const meta = MODE_META[cfg.mode];
+          cfg.speed = state.units === 'imperial' ? meta.speedImp : meta.speedMet;
+        });
+        renderLegConfig('dropoff');
+        renderLegConfig('pickup');
+        if (state.location) await fetchWeather();
+        renderAll();
+      });
+    });
+
+    renderLegConfig('dropoff');
+    renderLegConfig('pickup');
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (state.view === 'month' && state._monthRedraw) state._monthRedraw();
+      }, 150);
+    });
+  }
+
+  wireStatic();
+})();
 </script>
 </body>
 </html>
